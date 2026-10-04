@@ -184,7 +184,9 @@ def build_dsp(
         lh5_tables = tbs_new
 
         if len(lh5_tables) == 0:
-            raise RuntimeError(f"could not find any valid LH5 table in {raw_in}")
+            raise RuntimeError(
+                f"could not find any valid LH5 table in {raw_in}"
+            )
 
     else:
         raise RuntimeError(
@@ -215,7 +217,9 @@ def build_dsp(
             database = safe_load(db_file)
 
     if database and not isinstance(database, Mapping):
-        raise ValueError("input database is not a valid JSON or YAML file or dict")
+        raise ValueError(
+            "input database is not a valid JSON or YAML file or dict"
+        )
 
     # Setup output
     if dsp_out is None:
@@ -301,7 +305,8 @@ def build_dsp(
                     log.debug(f"database lookup: found {db_node} for {file}")
                     file = db_node
                 except (KeyError, TypeError):
-                    raise ProcessingChainError(f"did not find {file} in database.")
+                    msg = f"did not find {file} in database."
+                    raise ProcessingChainError(msg)
 
             # check if group points to a db override
             if db_parser.fullmatch(group):
@@ -312,7 +317,8 @@ def build_dsp(
                     log.debug(f"database lookup: found {db_node} for {group}")
                     group = db_node
                 except (KeyError, TypeError):
-                    raise ProcessingChainError(f"did not find {group} in database.")
+                    msg = f"did not find {group} in database."
+                    raise ProcessingChainError(msg)
 
             if isinstance(lh5_in, lh5.LH5Iterator):
                 lh5_in.add_friend(
@@ -407,7 +413,9 @@ def build_dsp(
             loading_time += time.time() - curr
             processing_time_start = time.time()
             i_entry = (
-                lh5_it.current_i_entry if isinstance(lh5_it, lh5.LH5Iterator) else 0
+                lh5_it.current_i_entry
+                if isinstance(lh5_it, lh5.LH5Iterator)
+                else 0
             )
             try:
                 proc_chain(tb_in, tb_out)

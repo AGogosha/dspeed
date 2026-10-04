@@ -143,6 +143,8 @@ ignore = [
     "D100",
     "CPY001",
     "D",
+    "PLR09",
+    "C901",
 ]
 # isort.required-imports = ["from __future__ import annotations"]
 # # Uncomment if using a _compat.typing backport

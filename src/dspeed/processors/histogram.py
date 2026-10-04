@@ -60,7 +60,8 @@ def histogram(
 
     """
     if len(weights_out) + 1 != len(borders_out):
-        raise DSPFatal("length borders_out must be exactly 1 + length of weights_out")
+        msg = "length borders_out must be exactly 1 + length of weights_out"
+        raise DSPFatal(msg)
 
     weights_out[:] = 0
     borders_out[:] = np.nan
@@ -153,12 +154,14 @@ def histogram_around_mode(
 
     """
     if len(weights_out) + 1 != len(borders_out):
-        raise DSPFatal("length borders_out must be exactly 1 + length of weights_out")
+        msg = "length borders_out must be exactly 1 + length of weights_out"
+        raise DSPFatal(msg)
 
     # borders_out[:] = np.nan
 
     if contains_nan(w_in):
-        raise DSPFatal("input data contains nan")
+        msg = "input data contains nan"
+        raise DSPFatal(msg)
 
     # number of bins
     n_bins = len(weights_out)

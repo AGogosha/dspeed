@@ -64,7 +64,8 @@ def recursive_filter(w_in, a, b, init_in, init_out, w_out):
         return
 
     if len(b) == 0:
-        raise DSPFatal("b cannot be scalar")
+        msg = "b cannot be scalar"
+        raise DSPFatal(msg)
     if len(w_in) <= len(b):
         raise DSPFatal(
             f"The length of the waveform must be larger than {len(b)} for the filter to work safely"

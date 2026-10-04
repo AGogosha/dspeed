@@ -51,16 +51,20 @@ def cusp_filter(
 
     """
     if sigma < 0:
-        raise DSPFatal("The curvature parameter must be positive")
+        msg = "The curvature parameter must be positive"
+        raise DSPFatal(msg)
 
     if flat < 0:
-        raise DSPFatal("The length of the flat section must be positive")
+        msg = "The length of the flat section must be positive"
+        raise DSPFatal(msg)
 
     if np.floor(flat) != flat:
-        raise DSPFatal("The length of the flat section must be an integer")
+        msg = "The length of the flat section must be an integer"
+        raise DSPFatal(msg)
 
     if decay < 0:
-        raise DSPFatal("The decay constant must be positive")
+        msg = "The decay constant must be positive"
+        raise DSPFatal(msg)
 
     lt = int((len(kernel) - flat) / 2)
     flat_int = int(flat)
@@ -117,16 +121,20 @@ def zac_filter(sigma: float, flat: int, decay: int, kernel: np.ndarray) -> None:
 
     """
     if sigma < 0:
-        raise DSPFatal("The curvature parameter must be positive")
+        msg = "The curvature parameter must be positive"
+        raise DSPFatal(msg)
 
     if flat < 0:
-        raise DSPFatal("The length of the flat section must be positive")
+        msg = "The length of the flat section must be positive"
+        raise DSPFatal(msg)
 
     if np.floor(flat) != flat:
-        raise DSPFatal("The length of the flat section must be an integer")
+        msg = "The length of the flat section must be an integer"
+        raise DSPFatal(msg)
 
     if decay < 0:
-        raise DSPFatal("The decay constant must be positive")
+        msg = "The decay constant must be positive"
+        raise DSPFatal(msg)
 
     lt = int((len(kernel) - flat) / 2)
     flat_int = int(flat)
@@ -172,8 +180,8 @@ def zac_filter(sigma: float, flat: int, decay: int, kernel: np.ndarray) -> None:
     ),
 )
 def dplms(
-    noise_mat: list,
-    reference: list,
+    noise_mat: np.ndarray,
+    reference: np.ndarray,
     a1: float,
     a2: float,
     a3: float,
@@ -227,36 +235,32 @@ def dplms(
             - kern_dplms
 
     """
-    noise_mat = np.array(noise_mat)
-    reference = np.array(reference)
+    # noise_mat = np.array(noise_mat)
+    # reference = np.array(reference)
 
     if len(kernel) != noise_mat.shape[0]:
-        raise DSPFatal(
-            "The length of the filter is not consistent with the noise matrix"
-        )
+        msg = "The length of the filter is not consistent with the noise matrix"
+        raise DSPFatal(msg)
 
     if len(reference) <= 0:
-        raise DSPFatal("The length of the reference signal must be positive")
+        msg = "The length of the reference signal must be positive"
+        raise DSPFatal(msg)
 
     if a1 <= 0:
-        raise DSPFatal(
-            "The penalized coefficient for the noise must be positive"
-        )
+        msg = "The penalized coefficient for the noise must be positive"
+        raise DSPFatal(msg)
 
     if a2 <= 0:
-        raise DSPFatal(
-            "The penalized coefficient for the reference must be positive"
-        )
+        msg = "The penalized coefficient for the reference must be positive"
+        raise DSPFatal(msg)
 
     if a3 <= 0:
-        raise DSPFatal(
-            "The penalized coefficient for the zero area must be positive"
-        )
+        msg = "The penalized coefficient for the zero area must be positive"
+        raise DSPFatal(msg)
 
     if ff <= 0:
-        raise DSPFatal(
-            "The penalized coefficient for the ref matrix must be positive"
-        )
+        msg = "The penalized coefficient for the ref matrix must be positive"
+        raise DSPFatal(msg)
 
     # reference matrix
     length = len(kernel)
@@ -270,9 +274,8 @@ def dplms(
     elif ff == 1:
         ff = [-1, 0, 1]
     else:
-        raise DSPFatal(
-            "The penalized coefficient for the ref matrix must be 0 or 1"
-        )
+        msg = "The penalized coefficient for the ref matrix must be 0 or 1"
+        raise DSPFatal(msg)
     for i in ff:
         ref_mat += np.outer(
             reference[flo + i : fhi + i], reference[flo + i : fhi + i]

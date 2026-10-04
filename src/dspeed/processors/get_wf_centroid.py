@@ -54,11 +54,14 @@ def get_wf_centroid(w_in: np.ndarray, shift: int, centroid: int) -> None:
         return
 
     if np.isnan(shift):
-        raise DSPFatal("shift is nan")
+        msg = "shift is nan"
+        raise DSPFatal(msg)
     if shift < 0:
-        raise DSPFatal("shift must be positive")
+        msg = "shift must be positive"
+        raise DSPFatal(msg)
     if shift > len(w_in) - 1:
-        raise DSPFatal("shift must be shorter than input waveform size")
+        msg = "shift must be shorter than input waveform size"
+        raise DSPFatal(msg)
 
     i_min = w_in.argmin()
     i_max = w_in.argmax()

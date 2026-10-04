@@ -46,7 +46,8 @@ def get(a_in, i, a_out):
     if i >= -len(a_in) and i < len(a_in):
         a_out[:] = a_in[i]
     else:
-        raise DSPFatal("i is out of range")
+        msg = "i is out of range"
+        raise DSPFatal(msg)
 
 
 @guvectorize(

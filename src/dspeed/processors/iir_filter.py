@@ -74,28 +74,26 @@ def iir_filter(
 
     if btype in ("lowpass", "highpass"):
         if isinstance(freq, Collection):
-            raise DSPFatal(f"{btype} filter requires one freq value")
-        if f_samp is not None:
-            f_c = float(2 * freq / f_samp)
-        else:
-            f_c = freq
+            msg = f"{btype} filter requires one freq value"
+            raise DSPFatal(msg)
+        f_c = float(2 * freq / f_samp) if f_samp is not None else freq
         if not 0 <= f_c <= 1:
-            raise DSPFatal(
-                "Critical frequency must be positive and < nyquist frequency"
-            )
+            msg = "Critical frequency must be positive and < nyquist frequency"
+            raise DSPFatal(msg)
     elif btype in ("bandpass", "bandstop"):
         if not (isinstance(freq, Collection) and len(freq) == 2):
-            raise DSPFatal(f"{btype} filter requires two freq values")
+            msg = f"{btype} filter requires two freq values"
+            raise DSPFatal(msg)
         if f_samp is not None:
             f_c = [float(2 * f / f_samp) for f in freq]
         else:
             f_c = freq
         if not all(0 <= f <= 1 for f in f_c):
-            raise DSPFatal(
-                "Critical frequency must be positive and < nyquist frequency"
-            )
+            msg = "Critical frequency must be positive and < nyquist frequency"
+            raise DSPFatal(msg)
     else:
-        raise DSPFatal("Invalid type of filter")
+        msg = "Invalid type of filter"
+        raise DSPFatal(msg)
 
     # design filter and initial filter conditions
     a, b = sg.iirfilter(order, f_c, rp=rp, rs=rs, btype=btype, ftype=ftype)
@@ -157,7 +155,8 @@ def notch_filter(
     q = float(freq / bandwidth)
 
     if not 0 <= f_c <= 1:
-        raise DSPFatal("Critical frequency must be positive and < nyquist frequency")
+        msg = "Critical frequency must be positive and < nyquist frequency"
+        raise DSPFatal(msg)
 
     a, b = sg.iirnotch(f_c, q)
     return GUFuncWrapper(
@@ -216,11 +215,14 @@ def peak_filter(
     q = float(freq / bandwidth)
 
     if not 0 <= f_c <= 1:
-        raise DSPFatal("Critical frequency must be positive and < nyquist frequency")
+        msg = "Critical frequency must be positive and < nyquist frequency"
+        raise DSPFatal(msg)
 
     a, b = sg.iirpeak(f_c, q)
     return GUFuncWrapper(
-        lambda w_in, w_out: recursive_filter(w_in, a, b, w_in[..., 0], 0, w_out),
+        lambda w_in, w_out: recursive_filter(
+            w_in, a, b, w_in[..., 0], 0, w_out
+        ),
         signature="(n)->(n)",
         types=["ff->f", "dd->d"],
         name=f"peak({freq}, {bandwidth})",

@@ -45,7 +45,8 @@ def windower(w_in: np.ndarray, t0_in: int, w_out: np.ndarray) -> None:
         return
 
     if len(w_out) >= len(w_in):
-        raise DSPFatal("The windowed waveform must be smaller than the input waveform")
+        msg = "The windowed waveform must be smaller than the input waveform"
+        raise DSPFatal(msg)
 
     beg = min(int(t0_in), len(w_in))
     end = max(beg + len(w_out), 0)

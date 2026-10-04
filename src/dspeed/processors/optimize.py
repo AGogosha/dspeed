@@ -112,7 +112,8 @@ def optimize_1pz(
         return
 
     if not np.floor(t_beg_in) == t_beg_in or not np.floor(t_end_in) == t_end_in:
-        raise DSPFatal("The waveform index is not an integer")
+        msg = "The waveform index is not an integer"
+        raise DSPFatal(msg)
 
     if (
         int(t_beg_in) < 0
@@ -120,7 +121,8 @@ def optimize_1pz(
         or int(t_end_in) < 0
         or int(t_end_in) > len(w_in)
     ):
-        raise DSPFatal("The waveform index is out of range")
+        msg = "The waveform index is out of range"
+        raise DSPFatal(msg)
 
     m = Minuit(
         Model(pole_zero, w_in, a_baseline_in, int(t_beg_in), int(t_end_in)),
@@ -226,7 +228,8 @@ def optimize_2pz(
         return
 
     if not np.floor(t_beg_in) == t_beg_in or not np.floor(t_end_in) == t_end_in:
-        raise DSPFatal("The waveform index is not an integer")
+        msg = "The waveform index is not an integer"
+        raise DSPFatal(msg)
 
     if (
         int(t_beg_in) < 0
@@ -234,7 +237,8 @@ def optimize_2pz(
         or int(t_end_in) < 0
         or int(t_end_in) > len(w_in)
     ):
-        raise DSPFatal("The waveform index is out of range")
+        msg = "The waveform index is out of range"
+        raise DSPFatal(msg)
 
     m = Minuit(
         Model(double_pole_zero, w_in, a_baseline_in, int(t_beg_in), int(t_end_in)),

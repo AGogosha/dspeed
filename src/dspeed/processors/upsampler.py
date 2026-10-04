@@ -43,7 +43,8 @@ def upsampler(w_in: np.ndarray, upsample: float, w_out: np.ndarray) -> None:
         return
 
     if not (upsample > 0):
-        raise DSPFatal("Upsample must be greater than 0")
+        msg = "Upsample must be greater than 0"
+        raise DSPFatal(msg)
 
     for t_in in range(len(w_in)):
         t_out = int(t_in * upsample - np.floor(upsample / 2))
@@ -118,9 +119,8 @@ def interpolating_upsampler(
 
     if mode_in == ord("i"):  # Index
         if upsample != int(upsample):
-            raise DSPFatal(
-                "interpolating_upsampler requires len(w_out) to be an integer multiple of len(w_in) for mode 'i'"
-            )
+            msg = "interpolating_upsampler requires len(w_out) to be an integer multiple of len(w_in) for mode 'i'"
+            raise DSPFatal(msg)
         for i_in, a in enumerate(w_in):
             i_out = int(upsample * i_in)
             w_out[i_out] = a
@@ -220,4 +220,5 @@ def interpolating_upsampler(
             i_last = i_next
 
     else:
-        raise DSPFatal("Unrecognized interpolation mode")
+        msg = "Unrecognized interpolation mode"
+        raise DSPFatal(msg)

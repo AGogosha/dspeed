@@ -132,9 +132,8 @@ def multi_t_filter(
     if np.isnan(vt_max_in).all() and np.isnan(vt_min_in).all():
         return
     if not len(t_out) <= len(w_in):
-        raise DSPFatal(
-            "The length of your return array must be smaller than the length of your waveform"
-        )
+        msg = "The length of your return array must be smaller than the length of your waveform"
+        raise DSPFatal(msg)
 
     # Initialize an intermediate array to hold the tp0 values before we remove duplicates from it
     intermediate_t_out = np.full_like(t_out, np.nan, dtype=np.float32)

@@ -84,7 +84,8 @@ def fixed_time_pickoff(w_in: np.ndarray, t_in: float, mode_in: np.int8, a_out: f
     t1 = 1 - t0
 
     if chr(mode_in) == "i":  # Index
-        raise DSPFatal("fixed_time_pickoff requires integer t_in when using mode 'i'")
+        msg = "fixed_time_pickoff requires integer t_in when using mode 'i'"
+        raise DSPFatal(msg)
     if chr(mode_in) == "n":  # Nearest-neighbor
         a_out[0] = w_in[i_in] if t0 < 0.5 else w_in[i_in + 1]
     elif chr(mode_in) == "f":  # Floor
@@ -124,4 +125,5 @@ def fixed_time_pickoff(w_in: np.ndarray, t_in: float, mode_in: np.int8, a_out: f
             + ((t1**3 - t1) * w2[i_in] + (t0**3 - t0) * w2[i_in + 1]) / 6.0
         )
     else:
-        raise DSPFatal("Unrecognized interpolation mode")
+        msg = "Unrecognized interpolation mode"
+        raise DSPFatal(msg)

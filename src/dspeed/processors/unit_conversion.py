@@ -30,7 +30,8 @@ def convert_int(buf_in, offset_in, offset_out, period_ratio):
     ret = np.rint(tmp)
     if np.abs(tmp - ret) < 1.0e-5:
         return ret
-    raise DSPFatal("Cannot convert to integer. Use round or astype")
+    msg = "Cannot convert to integer. Use round or astype"
+    raise DSPFatal(msg)
 
 
 @vectorize(

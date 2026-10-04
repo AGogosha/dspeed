@@ -84,9 +84,8 @@ class CoordinateGrid:
             self.period = self.period.period
         elif isinstance(self.period, ProcChainVar):
             if self.period.grid in (None, auto):
-                raise ProcessingChainError(
-                    f"{self.period} does not have an assigned coordinate grid"
-                )
+                msg = f"{self.period} does not have an assigned coordinate grid"
+                raise ProcessingChainError(msg)
             self.offset = self.period.offset
             self.period = self.period.period
         elif isinstance(self.period, Collection) and not isinstance(
@@ -272,13 +271,11 @@ class ProcChainVar(ProcChainVarBase):
         # If buffer needs to be created, do so now
         if self._buffer is None:
             if self.shape is auto:
-                raise ProcessingChainError(
-                    f"cannot deduce shape of {self.name}"
-                )
+                msg = f"cannot deduce shape of {self.name}"
+                raise ProcessingChainError(msg)
             if self.dtype is auto:
-                raise ProcessingChainError(
-                    f"cannot deduce dtype of {self.name}"
-                )
+                msg = f"cannot deduce dtype of {self.name}"
+                raise ProcessingChainError(msg)
             self._buffer = self._make_buffer()
 
         # if no unit is given, use the native unit/coordinate grid
@@ -467,7 +464,8 @@ class ProcessingChain:
         """
         self._validate_name(name, raise_exception=True)
         if name in self._vars_dict:
-            raise ProcessingChainError(name + " is already in variable list")
+            msg = f"{name} is already in variable list"
+            raise ProcessingChainError(msg)
 
         # Construct coordinate grid from period/offset if given
         if grid is auto and period is not None:
@@ -563,18 +561,16 @@ class ProcessingChain:
         io_managers = self._output_managers if output else self._input_managers
 
         if not isinstance(var, ProcChainVar):
-            raise ProcessingChainError(
-                "Must link an input buffer to a processing chain variable"
-            )
+            msg = "Must link an input buffer to a processing chain variable"
+            raise ProcessingChainError(msg)
 
         # Create input buffer that will be linked and returned if none exists
         if buff is None:
             dtype = var.dtype
 
             if var is None:
-                raise ProcessingChainError(
-                    f"{varname} does not exist and no buffer was provided"
-                )
+                msg = f"{varname} does not exist and no buffer was provided"
+                raise ProcessingChainError(msg)
             if isinstance(var.grid, CoordinateGrid) and not var.is_coord:
                 if var.vector_len is None:
                     buff = lgdo.WaveformTable(
@@ -618,9 +614,8 @@ class ProcessingChain:
         elif isinstance(buff, lgdo.WaveformTable):
             out_man = LGDOWaveformIOManager(buff, var)
         else:
-            raise ProcessingChainError(
-                "Could not link input buffer of unknown type", str(buff)
-            )
+            msg = f"Could not link input buffer of unknown type {buff!s}"
+            raise ProcessingChainError(msg)
 
         log.debug(f"added input buffer: {out_man}")
         io_managers[varname] = out_man
@@ -702,7 +697,8 @@ class ProcessingChain:
         # link input buffers to columns of tb_in
         for varname in self._input_managers:
             if varname not in tb_in:
-                raise ProcessingChainError(f"Require column {varname} in tb_in")
+                msg = f"Require column {varname} in tb_in"
+                raise ProcessingChainError(msg)
             self.link_input_buffer(varname, tb_in[varname])
 
         if out is None:
@@ -717,9 +713,8 @@ class ProcessingChain:
             # Link output buffers to columns of out
             for varname in self._output_managers:
                 if varname not in out:
-                    raise ProcessingChainError(
-                        f"Require column {varname} in out"
-                    )
+                    msg = f"Require column {varname} in out"
+                    raise ProcessingChainError(msg)
                 self.link_output_buffer(varname, out[varname])
 
         self.execute()
@@ -936,9 +931,8 @@ class ProcessingChain:
         if isinstance(node, ast.Compare):
             lhs = self._parse_expr(node.left, expr, dry_run, var_name_list)
             if len(node.comparators) != 1:
-                raise ProcessingChainError(
-                    "Compound comparisons are not supported."
-                )
+                msg = "Compound comparisons are not supported."
+                raise ProcessingChainError(msg)
             rhs = self._parse_expr(
                 node.comparators[0], expr, dry_run, var_name_list
             )
@@ -971,9 +965,8 @@ class ProcessingChain:
             if val is None:
                 return None
             if not isinstance(val, ProcChainVar) or not len(val.shape) > 0:
-                raise ProcessingChainError(
-                    "Cannot apply subscript to", node.value
-                )
+                msg = f"Cannot apply subscript to {node.value}"
+                raise ProcessingChainError(msg)
 
             def get_index(slice_value, var_len=None):
                 ret = self._parse_expr(
@@ -1081,7 +1074,8 @@ class ProcessingChain:
 
             elif isinstance(node.slice, ast.Tuple):
                 # TODO: implement this...
-                raise ProcessingChainError("Tuple still isn't implemented...")
+                msg = "Tuple still isn't implemented..."
+                raise ProcessingChainError(msg)
 
             # Create our return variable and set the buffer to the slice
             out = ProcChainVar(
@@ -1115,10 +1109,8 @@ class ProcessingChain:
                 mod = self.module_list[module]
                 attr = getattr(mod, node.attr)
                 if not isinstance(attr, Real):
-                    raise ProcessingChainError(
-                        f"Attribute {node.attr} from {node.value} is not"
-                        f"an int or float..."
-                    )
+                    msg = f"Attribute {node.attr} from {node.value} is not an int or float..."
+                    raise ProcessingChainError(msg)
                 return attr
 
             # Otherwise this is probably a ProcChainVar
@@ -1153,14 +1145,11 @@ class ProcessingChain:
                     return self.add_variable(var_name, *args, **kwargs)
                 return None
 
-            raise ProcessingChainError(
-                f"do not recognize call to {func} with arguments "
-                f"{[str(arg.__dict__) for arg in node.args]}"
-            )
+            msg = f"do not recognize call to {func} with arguments {[str(arg.__dict__) for arg in node.args]}"
+            raise ProcessingChainError(msg)
 
-        raise ProcessingChainError(
-            f"cannot parse AST nodes of type {node.__dict__}"
-        )
+        msg = f"cannot parse AST nodes of type {node.__dict__}"
+        raise ProcessingChainError(msg)
 
     def _validate_name(self, name: str, raise_exception: bool = False) -> bool:
         """Check that name is alphanumeric, and not an already used keyword"""
@@ -1171,7 +1160,8 @@ class ProcessingChain:
             and name not in self.module_list
         )
         if raise_exception and not isgood:
-            raise ProcessingChainError(f"{name} is not a valid variable name")
+            msg = f"{name} is not a valid variable name"
+            raise ProcessingChainError(msg)
         return isgood
 
     def _execute_procs(self, begin: int, end: int) -> str:
@@ -1211,11 +1201,13 @@ class ProcessingChain:
         if var is None:
             return None
         if not isinstance(var, ProcChainVar):
-            raise ProcessingChainError(f"cannot call len() on {var}")
+            msg = f"cannot call len() on {var}"
+            raise ProcessingChainError(msg)
         if var.vector_len is not None:
             return var.vector_len
-        if not len(var.shape) == 1:
-            raise ProcessingChainError(f"{var} has wrong number of dims")
+        if len(var.shape) != 1:
+            msg = f"{var} has wrong number of dims"
+            raise ProcessingChainError(msg)
         return var.shape[0]
 
     def get_timing(self) -> dict[str, float]:
@@ -1250,9 +1242,8 @@ class ProcessingChain:
         elif mode == "trunc":
             fun = processors.trunc_to_nearest
         else:
-            raise ProcessingChainError(
-                "Mode must be round, floor, ceil or trunc"
-            )
+            msg = "Mode must be round, floor, ceil or trunc"
+            raise ProcessingChainError(msg)
 
         if var is None:
             return None
@@ -1308,7 +1299,8 @@ class ProcessingChain:
         if var is None:
             return None
         if not isinstance(var, ProcChainVar):
-            raise ProcessingChainError(f"cannot call astype() on {var}")
+            msg = f"cannot call astype() on {var}"
+            raise ProcessingChainError(msg)
         name = f"{var}.astype(`{dtype.char}`)"
         out = ProcChainVar(
             self,
@@ -1390,20 +1382,21 @@ class ProcessingChain:
             return None
 
         if not (isinstance(condition, ProcChainVar) and condition.dtype == "?"):
-            raise ProcessingChainError(
-                f"{condition} must be a boolean variable"
-            )
+            msg = f"{condition} must be a boolean variable"
+            raise ProcessingChainError(msg)
 
         name = f"where({condition}, {a}, {b})"
         if isinstance(a, ProcChainVar) and isinstance(b, ProcChainVar):
             if a.period != b.period:
-                raise ProcessingChainError(
+                msg = (
                     f"Cannot select between {a} and {b} with different periods"
                 )
+                raise ProcessingChainError(msg)
             if a.is_coord != b.is_coord:
-                raise ProcessingChainError(
+                msg = (
                     f"Cannot select between {a} and {b} with different is_coord"
                 )
+                raise ProcessingChainError(msg)
             is_coord = a.is_coord
 
             if a.offset == b.offset:
@@ -1421,9 +1414,8 @@ class ProcessingChain:
             elif not unit_a:
                 unit = unit_b
             else:
-                raise ProcessingChainError(
-                    f"{a} and {b} do not have compatible units"
-                )
+                msg = f"{a} and {b} do not have compatible units"
+                raise ProcessingChainError(msg)
 
         elif isinstance(a, ProcChainVar) or isinstance(b, ProcChainVar):
             if isinstance(a, ProcChainVar):
@@ -1447,9 +1439,8 @@ class ProcessingChain:
                 else:
                     a = float(const / (1 * unit))
             else:
-                raise ProcessingChainError(
-                    f"{a} and {b} do not have compatible units"
-                )
+                msg = f"{a} and {b} do not have compatible units"
+                raise ProcessingChainError(msg)
 
         else:
             grid = None
@@ -1503,7 +1494,8 @@ class ProcessingChain:
             else:
                 loaded_data = loaded_data.nda
         except (ValueError, lh5.types.exceptions.LH5DecodeError, OSError):
-            raise ProcessingChainError(f"LH5 file not found: {path_to_file}")
+            msg = f"LH5 file not found: {path_to_file}"
+            raise ProcessingChainError(msg)
 
         return loaded_data
 
@@ -1578,9 +1570,8 @@ class ProcessorManager:
         if types is None:
             types = func.types.copy()
         if types is None:
-            raise ProcessingChainError(f"""could not find a type signature list
-                                           for {func.__name__}. Please supply a
-                                           valid list of types.""")
+            msg = f"could not find a type signature list for {func.__name__}. Please supply a valid list of types."
+            raise ProcessingChainError(msg)
         if isinstance(types, str) or not isinstance(types, Collection):
             types = [types]
         found_types = [typestr.replace("->", "") for typestr in types]
@@ -1647,11 +1638,12 @@ class ProcessorManager:
                     if fd in dims_dict:
                         this_dim = dims_dict[fd]
                         if not ad or this_dim.length != ad:
-                            raise ProcessingChainError(
+                            msg = (
                                 f"failed to broadcast array dimensions for "
                                 f"{func.__name__}. Could not find consistent value "
                                 f"for dimension {fd}"
                             )
+                            raise ProcessingChainError(msg)
                         if not this_dim.grid:
                             dims_dict[fd].grid = arr_grid
                         elif arr_grid and arr_grid != this_dim.grid:
@@ -1680,13 +1672,14 @@ class ProcessorManager:
                         )
                         fun_dims.insert(len(fun_dims) - i, ad)
                     else:
-                        raise ProcessingChainError(
+                        msg = (
                             f"failed to broadcast array dimensions for "
                             f"{func.__name__}. Input arrays do not have "
                             f"consistent outer dimensions.  Require: "
                             f"{tuple(dim.length for dim in outerdims + fun_dims)}; "
                             f"found {tuple(arr_dims)} for {param}"
                         )
+                        raise ProcessingChainError(msg)
                 elif not fd.grid:
                     outerdims[len(fun_dims) - 1 - i].grid = arr_grid
 
@@ -1703,10 +1696,11 @@ class ProcessorManager:
             for param in it.chain(self.params, self.kw_params.values()):
                 if not isinstance(param, ProcChainVar):
                     continue
-            raise ProcessingChainError(
+            msg = (
                 f"could not find a type signature matching the types of the "
                 f"variables given for {self} (types: {types})"
             )
+            raise ProcessingChainError(msg)
         # Use the first types in the list that all our types can be cast to
         self.types = [np.dtype(t) for t in found_types[0]]
 
@@ -1741,9 +1735,8 @@ class ProcessorManager:
                     if isinstance(param, np.ndarray):
                         dims_dict[d] = self.DimInfo(len(param), None)
                     else:
-                        raise ProcessingChainError(
-                            f"could not deduce dimension {d} for {param}"
-                        )
+                        msg = f"could not deduce dimension {d} for {param}"
+                        raise ProcessingChainError(msg)
                 dim_list.append(dims_dict[d])
             shape = tuple(d.length for d in dim_list)
             this_grid = dim_list[-1].grid if dim_list else None
@@ -1788,10 +1781,11 @@ class ProcessorManager:
                             param.encode("ascii"), dtype
                         ).reshape(shape)
                     except ValueError:
-                        raise ProcessingChainError(
+                        msg = (
                             f"could not convert string '{param}' into"
                             f"byte-array of type {dtype} and shape {shape}"
                         )
+                        raise ProcessingChainError(msg)
 
             elif param is not None:
                 # Convert scalar to right type, including units
@@ -1799,18 +1793,20 @@ class ProcessorManager:
                     if ureg.is_compatible_with(ureg.dimensionless, param):
                         param = param.to(ureg.dimensionless).magnitude
                     elif not isinstance(grid, CoordinateGrid):
-                        raise ProcessingChainError(
+                        msg = (
                             f"could not find valid conversion for {param}; "
                             f"CoordinateGrid is {grid}"
                         )
+                        raise ProcessingChainError(msg)
                     else:
                         # This lets us convert powers of unit
                         pi = ureg.pi_theorem({0: grid.period, 1: param})
                         if not pi:
-                            raise ProcessingChainError(
+                            msg = (
                                 f"could not find valid conversion for {param}; "
                                 f"CoordinateGrid is {grid}"
                             )
+                            raise ProcessingChainError(msg)
                         param = param * grid.period ** (pi[0][0] / pi[0][1])
                         param = param.to(ureg.dimensionless).magnitude
                 if np.issubdtype(dtype, np.integer):
@@ -1882,9 +1878,8 @@ class UnitConversionManager(ProcessorManager):
         elif mode == "trunc":
             self.processor = convert_trunc
         elif mode is not None:
-            raise ProcessingChainError(
-                "Mode must be round, floor, ceil or trunc"
-            )
+            msg = "Mode must be round, floor, ceil or trunc"
+            raise ProcessingChainError(msg)
         elif issubclass(var.dtype.type, np.floating):
             self.processor = convert
         else:
@@ -2004,10 +1999,11 @@ class NumpyIOManager(IOManager):
             raise ProcessingChainError(msg)
 
         if self.var.shape != io_buf.shape[1:] or self.var.dtype != io_buf.dtype:
-            raise ProcessingChainError(
+            msg = (
                 f"numpy.array<{io_buf.shape}>({{{io_buf.dtype}}}@{io_buf.data}) "
                 f"is not compatible with variable {self.var}"
             )
+            raise ProcessingChainError(msg)
 
         self.io_buf = io_buf
 
@@ -2058,10 +2054,11 @@ class LGDOArrayIOManager(IOManager):
             elif ureg.is_compatible_with(var_u, unit):
                 unit = ureg.Quantity(unit).u
             else:
-                raise ProcessingChainError(
+                msg = (
                     f"LGDO array and variable {var} have incompatible units "
                     f"({var_u} and {unit})"
                 )
+                raise ProcessingChainError(msg)
         elif isinstance(var.unit, str) and unit is None:
             unit = var.unit
 
@@ -2084,11 +2081,12 @@ class LGDOArrayIOManager(IOManager):
             self.var.shape != io_array.nda.shape[1:]
             or self.raw_var.dtype != io_array.dtype
         ):
-            raise ProcessingChainError(
+            msg = (
                 f"LGDO object "
                 f"{io_array.form_datatype()} is "
                 f"incompatible with {self.var!s}"
             )
+            raise ProcessingChainError(msg)
 
         self.io_array = io_array
 
@@ -2137,10 +2135,11 @@ class LGDOArrayOfEqualSizedArraysIOManager(IOManager):
             elif ureg.is_compatible_with(var_u, unit):
                 unit = ureg.Quantity(unit).u
             else:
-                raise ProcessingChainError(
+                msg = (
                     f"LGDO array and variable {var} have incompatible units "
                     f"({var_u} and {unit})"
                 )
+                raise ProcessingChainError(msg)
         elif isinstance(var.unit, str) and unit is None:
             unit = var.unit
 
@@ -2159,11 +2158,12 @@ class LGDOArrayOfEqualSizedArraysIOManager(IOManager):
             self.var.shape != io_array.nda.shape[1:]
             or self.raw_var.dtype != io_array.dtype
         ):
-            raise ProcessingChainError(
+            msg = (
                 f"LGDO object "
                 f"{io_array.form_datatype()} is "
                 f"incompatible with {self.var!s}"
             )
+            raise ProcessingChainError(msg)
 
         self.io_array = io_array
 
@@ -2200,9 +2200,8 @@ class LGDOVectorOfVectorsIOManager(IOManager):
             )
 
         if not np.issubdtype(var.vector_len.dtype, np.integer):
-            raise ProcessingChainError(
-                f"{var.vector_len} must be an integer to act as a vector len"
-            )
+            msg = f"{var.vector_len} must be an integer to act as a vector len"
+            raise ProcessingChainError(msg)
 
         self.unit = io_vov.attrs.get("units", None)
         var.update_auto(dtype=io_vov.dtype, unit=self.unit)
@@ -2220,10 +2219,11 @@ class LGDOVectorOfVectorsIOManager(IOManager):
             elif ureg.is_compatible_with(var_u, self.unit):
                 self.unit = ureg.Quantity(self.unit).u
             else:
-                raise ProcessingChainError(
+                msg = (
                     f"LGDO array and variable {var} have incompatible units "
                     f"({var_u} and {self.unit})"
                 )
+                raise ProcessingChainError(msg)
         elif isinstance(var.unit, str) and self.unit is None:
             self.unit = var.unit
 
@@ -2244,11 +2244,12 @@ class LGDOVectorOfVectorsIOManager(IOManager):
                 io_vov.attrs["units"] = str(self.var.unit)
 
         if self.var.dtype != io_vov.dtype:
-            raise ProcessingChainError(
+            msg = (
                 f"LGDO object "
                 f"{io_vov.flattened_data.form_datatype()} is "
                 f"incompatible with {self.var!s}"
             )
+            raise ProcessingChainError(msg)
 
         self.io_vov = io_vov
 
@@ -2258,9 +2259,8 @@ class LGDOVectorOfVectorsIOManager(IOManager):
         for i, cl in enumerate(cl_in):
             l_out[i] = cl - prev_cl
             if l_out[i] > aoa_out.shape[1]:
-                raise DSPFatal(
-                    "VectorOfVectors entry has length larger than array variable length"
-                )
+                msg = "VectorOfVectors entry has length larger than array variable length"
+                raise DSPFatal(msg)
             aoa_out[i, : l_out[i]] = flat_arr_in[prev_cl:cl]
             prev_cl = cl
 
@@ -2624,13 +2624,11 @@ def build_processing_chain(
             node["args"] = [function]
 
         if "module" not in node:
-            raise ProcessingChainError(
-                f"Could not find module for parameter {key}"
-            )
+            msg = f"Could not find module for parameter {key}"
+            raise ProcessingChainError(msg)
         if "args" not in node:
-            raise ProcessingChainError(
-                f"Could not find args for parameter {key}"
-            )
+            msg = f"Could not find args for parameter {key}"
+            raise ProcessingChainError(msg)
 
         # substitute database values in arguments
         args = node["args"]
@@ -2650,10 +2648,9 @@ def build_processing_chain(
                             f"Database lookup: using default value of {db_node} for {db_var}"
                         )
                     except (KeyError, TypeError):
-                        raise ProcessingChainError(
-                            f"""did not find {db_var} in database, and could
+                        msg = f"""did not find {db_var} in database, and could
                                 not find default value."""
-                        )
+                        raise ProcessingChainError(msg)
                 if arg == db_var:
                     arg = db_node
                 else:
@@ -2698,9 +2695,8 @@ def build_processing_chain(
         if par in resolved:
             return
         if par in unresolved:
-            raise ProcessingChainError(
-                f"Circular references detected for parameter '{par}'"
-            )
+            msg = f"Circular references detected for parameter '{par}'"
+            raise ProcessingChainError(msg)
 
         # if we don't find a node, this is a leaf
         node = processors.get(par)
@@ -2746,9 +2742,8 @@ def build_processing_chain(
         try:
             proc_chain.link_input_buffer(input_par, tb_in[input_par])
         except Exception as e:
-            raise ProcessingChainError(
-                f"Exception raised while linking input buffer '{input_par}'."
-            ) from e
+            msg = f"Exception raised while linking input buffer '{input_par}'."
+            raise ProcessingChainError(msg) from e
 
     # now add the processors
     for proc_par in proc_par_list:
@@ -2831,10 +2826,11 @@ def build_processing_chain(
                                     "database lookup: using default value of {db_node} for {db_var}"
                                 )
                             except (KeyError, TypeError):
-                                raise ProcessingChainError(
+                                msg = (
                                     f"did not find {db_var} in database, and "
                                     f"could not find default value."
                                 )
+                                raise ProcessingChainError(msg)
 
                         if arg == db_var:
                             arg = db_node
@@ -2934,9 +2930,8 @@ def build_processing_chain(
             buf_out.resize(len(tb_out))
             tb_out.add_field(copy_par, buf_out)
         except Exception as e:
-            raise ProcessingChainError(
-                f"Exception raised while linking copy buffer '{copy_par}'."
-            ) from e
+            msg = f"Exception raised while linking copy buffer '{copy_par}'."
+            raise ProcessingChainError(msg) from e
 
     # finally, add the output buffers to tb_out and the proc chain
     for out_par in out_par_list:
@@ -2951,9 +2946,8 @@ def build_processing_chain(
             buf_out.resize(len(tb_out))
             tb_out.add_field(out_par, buf_out)
         except Exception as e:
-            raise ProcessingChainError(
-                f"Exception raised while linking output buffer {out_par}."
-            ) from e
+            msg = f"Exception raised while linking output buffer {out_par}."
+            raise ProcessingChainError(msg) from e
 
     field_mask = input_par_list + copy_par_list
 

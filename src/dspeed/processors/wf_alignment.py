@@ -62,21 +62,28 @@ def wf_alignment(
         return
 
     if np.isnan(centroid):
-        raise DSPFatal("centroid is nan")
+        msg = "centroid is nan"
+        raise DSPFatal(msg)
 
     if np.isnan(shift):
-        raise DSPFatal("shift is nan")
+        msg = "shift is nan"
+        raise DSPFatal(msg)
     if shift < 0:
-        raise DSPFatal("shift must be positive")
+        msg = "shift must be positive"
+        raise DSPFatal(msg)
     if shift > len(w_in):
-        raise DSPFatal("shift must be shorter than input waveform size")
+        msg = "shift must be shorter than input waveform size"
+        raise DSPFatal(msg)
 
     if np.isnan(size):
-        raise DSPFatal("size is nan")
+        msg = "size is nan"
+        raise DSPFatal(msg)
     if size <= 0:
-        raise DSPFatal("size must be positive")
+        msg = "size must be positive"
+        raise DSPFatal(msg)
     if size > len(w_in):
-        raise DSPFatal("size must be shorter than input waveform size")
+        msg = "size must be shorter than input waveform size"
+        raise DSPFatal(msg)
 
     if (centroid >= size / 2) and (centroid < len(w_in) - size / 2):
         w_out[:] = w_in[int(centroid - size / 2) : int(centroid + size / 2)]

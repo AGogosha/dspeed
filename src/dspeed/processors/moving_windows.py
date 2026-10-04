@@ -54,9 +54,8 @@ def moving_window_left(w_in: np.ndarray, length: float, w_out: np.ndarray) -> No
         return
 
     if not length >= 0 or not length < len(w_in):
-        raise DSPFatal(
-            "length is out of range, must be between 0 and the length of the waveform"
-        )
+        msg = "length is out of range, must be between 0 and the length of the waveform"
+        raise DSPFatal(msg)
 
     w_out[0] = w_in[0]
     for i in range(1, int(length)):
@@ -105,9 +104,8 @@ def moving_window_right(w_in: np.ndarray, length: float, w_out: np.ndarray) -> N
         return
 
     if not length >= 0 or not length < len(w_in):
-        raise DSPFatal(
-            "length is out of range, must be between 0 and the length of the waveform"
-        )
+        msg = "length is out of range, must be between 0 and the length of the waveform"
+        raise DSPFatal(msg)
 
     w_out[-1] = w_in[-1]
     for i in range(1, int(length), 1):
@@ -177,16 +175,20 @@ def moving_window_multi(
         return
 
     if np.floor(length) != length:
-        raise DSPFatal("The length of the moving window must be an integer")
+        msg = "The length of the moving window must be an integer"
+        raise DSPFatal(msg)
 
     if np.floor(num_mw) != num_mw:
-        raise DSPFatal("The number of moving windows must be an integer")
+        msg = "The number of moving windows must be an integer"
+        raise DSPFatal(msg)
 
     if int(length) < 0 or int(length) >= len(w_in):
-        raise DSPFatal("The length of the moving window is out of range")
+        msg = "The length of the moving window is out of range"
+        raise DSPFatal(msg)
 
     if int(num_mw) < 0:
-        raise DSPFatal("The number of moving windows much be positive")
+        msg = "The number of moving windows much be positive"
+        raise DSPFatal(msg)
 
     w_buf = w_in.copy()
     for i in range(0, int(num_mw), 1):
@@ -256,9 +258,8 @@ def avg_current(w_in: np.ndarray, length: float, w_out: np.ndarray) -> None:
         return
 
     if not length >= 0 or not length < len(w_in):
-        raise DSPFatal(
-            "length is out of range, must be between 0 and the length of the waveform"
-        )
+        msg = "length is out of range, must be between 0 and the length of the waveform"
+        raise DSPFatal(msg)
 
     w_out[:] = w_in[int(length) :] - w_in[: -int(length)]
     w_out /= length

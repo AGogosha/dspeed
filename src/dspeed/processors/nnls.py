@@ -68,9 +68,7 @@ def optimize_nnls(
 
     """
 
-    def numba_ix(
-        arr: np.ndarray, rows: np.ndarray, cols: np.ndarray
-    ) -> np.ndarray:
+    def numba_ix(arr: np.ndarray, rows: np.ndarray, cols: np.ndarray) -> np.ndarray:
         """Numba compatible implementation of arr[np.ix_(rows, cols)] for 2D arrays.
         from https://github.com/numba/numba/issues/5894#issuecomment-974701551
         :param arr: 2D array to be indexed
@@ -95,13 +93,11 @@ def optimize_nnls(
     m, n = a.shape
 
     if n != len(x):
-        raise DSPFatal(
-            "n dimension of coefficient axis doesn't match solution vector length."
-        )
+        msg = "n dimension of coefficient axis doesn't match solution vector length."
+        raise DSPFatal(msg)
     if m != len(b):
-        raise DSPFatal(
-            "m dimension of coefficient axis doesn't match right-hand vector length."
-        )
+        msg = "m dimension of coefficient axis doesn't match right-hand vector length."
+        raise DSPFatal(msg)
 
     ata = np.transpose(a) @ a
     atb = b @ a  # Result is 1D - let NumPy figure it out

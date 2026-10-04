@@ -71,13 +71,16 @@ def time_point_thresh(
         return
 
     if np.floor(t_start) != t_start:
-        raise DSPFatal("The starting index must be an integer")
+        msg = "The starting index must be an integer"
+        raise DSPFatal(msg)
 
     if np.floor(walk_forward) != walk_forward:
-        raise DSPFatal("The search direction must be an integer")
+        msg = "The search direction must be an integer"
+        raise DSPFatal(msg)
 
     if int(t_start) < 0 or int(t_start) >= len(w_in):
-        raise DSPFatal("The starting index is out of range")
+        msg = "The starting index is out of range"
+        raise DSPFatal(msg)
 
     if int(walk_forward) == 1:
         for i in range(int(t_start), len(w_in) - 1, 1):
@@ -215,9 +218,7 @@ def interpolated_time_point_thresh(
     elif mode_in in (ord("b"), ord("c")):  # return index before crossing
         t_out[0] = i_cross
     elif mode_in == ord("r"):  # return closest index to crossing
-        if abs(a_threshold - w_in[i_cross]) < abs(
-            a_threshold - w_in[i_cross + 1]
-        ):
+        if abs(a_threshold - w_in[i_cross]) < abs(a_threshold - w_in[i_cross + 1]):
             t_out[0] = i_cross
         else:
             t_out[0] = i_cross + 1
@@ -228,7 +229,8 @@ def interpolated_time_point_thresh(
             w_in[i_cross + 1] - w_in[i_cross]
         )
     else:
-        raise DSPFatal("Unrecognized interpolation mode")
+        msg = "Unrecognized interpolation mode"
+        raise DSPFatal(msg)
 
 
 @guvectorize(
@@ -321,7 +323,8 @@ def multi_time_point_thresh(
     elif polarity < 0:
         polarity = -1
     else:
-        raise DSPFatal("polarity cannot be 0")
+        msg = "polarity cannot be 0"
+        raise DSPFatal(msg)
 
     sorted_idx = np.argsort(a_threshold)
 
@@ -338,15 +341,11 @@ def multi_time_point_thresh(
     i_tp = i_start
     if i_tp < len(sorted_idx):
         idx = sorted_idx[i_tp]
-        for i_wf in range(
-            t_start, len(w_in) - 1 if polarity > 0 else -1, polarity
-        ):
+        for i_wf in range(t_start, len(w_in) - 1 if polarity > 0 else -1, polarity):
             if i_tp >= len(sorted_idx):
                 break
             while w_in[i_wf] <= a_threshold[idx] < w_in[i_wf + polarity]:
-                if mode_in == ord(
-                    "i"
-                ):  # return index closest to start of search
+                if mode_in == ord("i"):  # return index closest to start of search
                     t_out[idx] = i_wf
                 elif mode_in in (
                     ord("a"),
@@ -375,7 +374,8 @@ def multi_time_point_thresh(
                         w_in[i_wf + polarity] - w_in[i_wf]
                     )
                 else:
-                    raise DSPFatal("Unrecognized interpolation mode")
+                    msg = "Unrecognized interpolation mode"
+                    raise DSPFatal(msg)
                 i_tp += 1
                 if i_tp >= len(sorted_idx):
                     break
@@ -391,9 +391,7 @@ def multi_time_point_thresh(
             if i_tp < 0:
                 break
             while w_in[i_wf] <= a_threshold[idx] < w_in[i_wf + polarity]:
-                if mode_in == ord(
-                    "i"
-                ):  # return index closest to start of search
+                if mode_in == ord("i"):  # return index closest to start of search
                     t_out[idx] = i_wf
                 elif mode_in in (
                     ord("a"),
@@ -422,7 +420,8 @@ def multi_time_point_thresh(
                         w_in[i_wf + polarity] - w_in[i_wf]
                     )
                 else:
-                    raise DSPFatal("Unrecognized interpolation mode")
+                    msg = "Unrecognized interpolation mode"
+                    raise DSPFatal(msg)
                 i_tp -= 1
                 if i_tp < 0:
                     break
@@ -505,13 +504,16 @@ def bi_level_zero_crossing_time_points(
         return
 
     if np.floor(t_start_in) != t_start_in:
-        raise DSPFatal("The starting index must be an integer")
+        msg = "The starting index must be an integer"
+        raise DSPFatal(msg)
 
     if int(t_start_in) < 0 or int(t_start_in) >= len(w_in):
-        raise DSPFatal("The starting index is out of range")
+        msg = "The starting index is out of range"
+        raise DSPFatal(msg)
 
     if len(polarity_out) != len(t_trig_times_out):
-        raise DSPFatal("The output arrays are of different lengths.")
+        msg = "The output arrays are of different lengths."
+        raise DSPFatal(msg)
 
     gate_time_in = int(gate_time_in)  # make sure this is an integer!
     # Perform the processing
@@ -529,9 +531,7 @@ def bi_level_zero_crossing_time_points(
             if crossed_zero and is_below_thresh:
                 if i - is_below_thresh < gate_time_in:
                     if n_crossings_out[0] < len(polarity_out):
-                        t_trig_times_out[n_crossings_out[0]] = (
-                            neg_trig_time_candidate
-                        )
+                        t_trig_times_out[n_crossings_out[0]] = neg_trig_time_candidate
                         polarity_out[n_crossings_out[0]] = 0
                     n_crossings_out[0] += 1
                 else:
@@ -551,9 +551,7 @@ def bi_level_zero_crossing_time_points(
             if crossed_zero and is_above_thresh:
                 if i - is_above_thresh < gate_time_in:
                     if n_crossings_out[0] < len(polarity_out):
-                        t_trig_times_out[n_crossings_out[0]] = (
-                            pos_trig_time_candidate
-                        )
+                        t_trig_times_out[n_crossings_out[0]] = pos_trig_time_candidate
                         polarity_out[n_crossings_out[0]] = 1
                     n_crossings_out[0] += 1
                 else:

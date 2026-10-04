@@ -126,11 +126,11 @@ def get_multi_local_extrema(
         return
 
     if (not len(vt_max_out) < len(w_in)) or (not len(vt_min_out) < len(w_in)):
-        raise DSPFatal(
-            "The length of your return array must be smaller than the length of your waveform"
-        )
+        msg = "The length of your return array must be smaller than the length of your waveform"
+        raise DSPFatal(msg)
     if (not a_delta_max_in >= 0) or (not a_delta_min_in >= 0):
-        raise DSPFatal("Delta must be positive")
+        msg = "Delta must be positive"
+        raise DSPFatal(msg)
 
     # now loop over data
     # left to right search
@@ -303,4 +303,5 @@ def get_multi_local_extrema(
             n_min_out[0] = len(both[~np.isnan(both)])
 
     else:
-        raise DSPFatal("search direction type not found.")
+        msg = "search direction type not found."
+        raise DSPFatal(msg)

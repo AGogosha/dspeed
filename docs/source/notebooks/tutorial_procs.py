@@ -7,7 +7,10 @@ from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 @guvectorize(
-    ["void(float32[:], float32, float32[:])", "void(float64[:], float64, float64[:])"],
+    [
+        "void(float32[:], float32, float32[:])",
+        "void(float64[:], float64, float64[:])",
+    ],
     "(n),()->(n)",
     **nb_kwargs,
 )
@@ -38,7 +41,8 @@ def pole_zero(w_in: np.ndarray, t_tau: float, w_out: np.ndarray) -> None:
             - wf_pz
     """
     if np.isnan(t_tau) or t_tau == 0:
-        raise DSPFatal("t_tau must be a non-zero number")
+        msg = "t_tau must be a non-zero number"
+        raise DSPFatal(msg)
 
     w_out[:] = np.nan
 
@@ -52,7 +56,9 @@ def pole_zero(w_in: np.ndarray, t_tau: float, w_out: np.ndarray) -> None:
 
 
 @guvectorize(
-    ["(float32[:], float32[:])", "(float64[:], float64[:])"], "(n),(m)", **nb_kwargs
+    ["(float32[:], float32[:])", "(float64[:], float64[:])"],
+    "(n),(m)",
+    **nb_kwargs,
 )
 def derivative(w_in: np.ndarray, w_out: np.ndarray):
     """Calculate time-derivative of pulse by taking finite
@@ -81,7 +87,8 @@ def derivative(w_in: np.ndarray, w_out: np.ndarray):
     """
     n_samp = len(w_in) - len(w_out)
     if n_samp < 0:
-        raise DSPFatal("n_samples must be >0")
+        msg = "n_samples must be >0"
+        raise DSPFatal(msg)
 
     w_out[:] = np.nan
 
@@ -166,7 +173,9 @@ def triangle_filter(length: int):
     )
     kernel /= np.sum(kernel)  # normalize
 
-    @guvectorize(["(float32[:], float32[:])"], "(n)->(n)", forceobj=True, cache=False)
+    @guvectorize(
+        ["(float32[:], float32[:])"], "(n)->(n)", forceobj=True, cache=False
+    )
     def returned_filter(w_in: np.ndarray, w_out: np.ndarray):
         w_out[:] = np.nan
 

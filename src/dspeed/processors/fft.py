@@ -38,8 +38,9 @@ def fft(w_in, dft_out):
               - dft(len(wf)//2+1, period=1/wf.period/len(wf)
 
     """
-    if not len(w_in) // 2 + 1 == len(dft_out):
-        raise DSPFatal(f"Size of fft must be len(w_in)//2+1 = {len(w_in) // 2 + 1}")
+    if len(w_in) // 2 + 1 != len(dft_out):
+        msg = f"Size of fft must be len(w_in)//2+1 = {len(w_in) // 2 + 1}"
+        raise DSPFatal(msg)
 
     dft_out[:] = np.nan
     if np.isnan(w_in).any():
@@ -89,7 +90,9 @@ def ifft(dft_in, w_out):
     np.fft.irfft(dft_in, out=w_out)
 
 
-@vectorize(["float64(complex128, uint32)", "float32(complex64, uint32)"], **nb_kwargs)
+@vectorize(
+    ["float64(complex128, uint32)", "float32(complex64, uint32)"], **nb_kwargs
+)
 def abs2norm(x, norm):
     """Helper for psd"""
     return (x.real * x.real + x.imag * x.imag) / norm
@@ -124,8 +127,9 @@ def psd(w_in, psd_out):
               - psd(len(wf)//2+1, period=1/wf.period/len(wf)
 
     """
-    if not len(w_in) // 2 + 1 == len(psd_out):
-        raise DSPFatal(f"Size of psd must be len(w_in)//2+1 = {len(w_in) // 2 + 1}")
+    if len(w_in) // 2 + 1 != len(psd_out):
+        msg = f"Size of psd must be len(w_in)//2+1 = {len(w_in) // 2 + 1}"
+        raise DSPFatal(msg)
 
     psd_out[:] = np.nan
     if np.isnan(w_in).any():

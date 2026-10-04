@@ -40,9 +40,8 @@ def multi_a_filter(w_in, vt_maxs_in, va_max_out):
         return
 
     if not len(vt_maxs_in) < len(w_in):
-        raise DSPFatal(
-            "The length of your return array must be smaller than the length of your waveform"
-        )
+        msg = "The length of your return array must be smaller than the length of your waveform"
+        raise DSPFatal(msg)
 
     nan_mask = np.isnan(vt_maxs_in)
     if nan_mask.all() or len(vt_maxs_in) == 0:

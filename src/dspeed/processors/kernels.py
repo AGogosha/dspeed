@@ -51,13 +51,16 @@ def t0_filter(rise: int, fall: int, kernel: np.ndarray) -> None:
 
     """
     if rise < 0:
-        raise DSPFatal("The length of the rise section must be positive")
+        msg = "The length of the rise section must be positive"
+        raise DSPFatal(msg)
 
     if fall < 0:
-        raise DSPFatal("The length of the fall section must be positive")
+        msg = "The length of the fall section must be positive"
+        raise DSPFatal(msg)
 
     if len(kernel) != rise + fall:
-        raise DSPFatal("The length of the output kernel must equal rise+fall")
+        msg = "The length of the output kernel must equal rise+fall"
+        raise DSPFatal(msg)
 
     for i in range(int(rise)):
         kernel[i] = 2 * (int(rise) - i) / (rise * (rise + 1))
@@ -100,9 +103,7 @@ def moving_slope(kernel):
     sum_x = length * (length + 1) / 2
     sum_x2 = length * (length + 1) * (2 * length + 1) / 6
 
-    kernel[:] = (np.arange(1, length + 1, 1) * length) - (
-        np.ones(length) * sum_x
-    )
+    kernel[:] = (np.arange(1, length + 1, 1) * length) - (np.ones(length) * sum_x)
     kernel[:] /= length * sum_x2 - sum_x * sum_x
     kernel[:] = kernel[::-1]
 

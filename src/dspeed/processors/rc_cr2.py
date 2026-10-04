@@ -53,9 +53,8 @@ def rc_cr2(w_in: np.ndarray, t_tau: float, w_out: np.ndarray) -> None:
         return
 
     if len(w_in) <= 3:
-        raise DSPFatal(
-            "The length of the waveform must be larger than 3 for the filter to work safely"
-        )
+        msg = "The length of the waveform must be larger than 3 for the filter to work safely"
+        raise DSPFatal(msg)
 
     w_out[0] = w_in[0]
     w_out[1] = w_in[1]
@@ -87,9 +86,7 @@ def rc_cr2(w_in: np.ndarray, t_tau: float, w_out: np.ndarray) -> None:
             + num_2 * w_in[i - 1]
             + num_3 * w_in[i - 2]
         ) / denom_1
-        w_out[i] = w_tmp[
-            3
-        ]  # Put the higher precision buffer into the desired output
+        w_out[i] = w_tmp[3]  # Put the higher precision buffer into the desired output
         # shuffle the buffers
         w_tmp[0] = w_tmp[1]
         w_tmp[1] = w_tmp[2]
@@ -97,4 +94,5 @@ def rc_cr2(w_in: np.ndarray, t_tau: float, w_out: np.ndarray) -> None:
 
     # Check the output
     if contains_nan(w_out):
-        raise DSPFatal("RC-CR^2 filter produced nans in output.")
+        msg = "RC-CR^2 filter produced nans in output."
+        raise DSPFatal(msg)

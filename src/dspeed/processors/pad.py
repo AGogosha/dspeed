@@ -69,11 +69,13 @@ def pad(
         return
 
     if len_in > len(w_in):
-        raise DSPFatal("Length longer than input array")
+        msg = "Length longer than input array"
+        raise DSPFatal(msg)
 
     i_beg = int(offset)
     if i_beg != offset:
-        raise DSPFatal("Offset must be an integer value")
+        msg = "Offset must be an integer value"
+        raise DSPFatal(msg)
     i_end = i_beg + len_in
 
     w_out[:i_beg] = start_val

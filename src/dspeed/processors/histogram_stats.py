@@ -86,11 +86,13 @@ def histogram_peakstats(
     width_out[0] = np.nan
 
     if contains_nan(weights_in):
-        raise DSPFatal("nan in input weights")
+        msg = "nan in input weights"
+        raise DSPFatal(msg)
 
     n_bins = len(weights_in)
     if n_bins + 1 != len(edges_in):
-        raise DSPFatal("length edges_in must be exactly 1 + length of weights_in")
+        msg = "length edges_in must be exactly 1 + length of weights_in"
+        raise DSPFatal(msg)
 
     # find global maximum search
     max_index = 0
@@ -151,17 +153,10 @@ def histogram_peakstats(
     elif width_type == 4:  # right HWHM (towards higher ADC )
         width_out[0] = hwhm_right
     else:
-        raise DSPFatal(f"Unknown width_type {width_type}, must be [0...4]")
+        msg = f"Unknown width_type {width_type}, must be [0...4]"
+        raise DSPFatal(msg)
 
 
-@guvectorize(
-    [
-        "void(float32[:], float32[:], float32[:], float32[:],float32[:],float32)",
-        "void(float64[:], float64[:], float64[:], float64[:],float64[:],float64)",
-    ],
-    "(n),(m),(),(),(),()",
-    **nb_kwargs,
-)
 def histogram_stats(
     weights_in: np.ndarray,
     edges_in: np.ndarray,
@@ -212,12 +207,11 @@ def histogram_stats(
             - ADC
             - none
             - ADC
-
     See Also
     --------
     .histogram
-
     """
+
     fwhm_out[0] = np.nan
     mode_out[0] = np.nan
     max_out[0] = np.nan
@@ -226,7 +220,8 @@ def histogram_stats(
         return
 
     if len(weights_in) + 1 != len(edges_in):
-        raise DSPFatal("length edges_in must be exactly 1 + length of weights_in")
+        msg = "length edges_in must be exactly 1 + length of weights_in"
+        raise DSPFatal(msg)
 
     # find global maximum search from left to right
     max_index = 0

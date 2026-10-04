@@ -52,20 +52,24 @@ def wiener_filter(file_name_array: list[str]) -> np.ndarray:
     try:
         file_name_array[0]
     except Exception:
-        raise DSPFatal("init_args must be an array with the filename")
+        msg = "init_args must be an array with the filename"
+        raise DSPFatal(msg)
 
     file_name = file_name_array[0]
 
     try:
         f = sto.gimme_file(file_name, "r")
     except Exception:
-        raise DSPFatal("File must be a valid lh5 file")
+        msg = "File must be a valid lh5 file"
+        raise DSPFatal(msg)
 
     if "spms/processed/superpulse" not in f:
-        raise DSPFatal("lh5 file must have 'spms/processed/superpulse' as a group")
+        msg = "lh5 file must have 'spms/processed/superpulse' as a group"
+        raise DSPFatal(msg)
 
     if "spms/processed/noise_wf" not in f:
-        raise DSPFatal("lh5 file must have 'spms/processed/noise_wf' as a group")
+        msg = "lh5 file must have 'spms/processed/noise_wf' as a group"
+        raise DSPFatal(msg)
 
     # Read in the data
 
@@ -78,17 +82,18 @@ def wiener_filter(file_name_array: list[str]) -> np.ndarray:
     # Now check that the data are valid
 
     if len(superpulse) <= 0:
-        raise DSPFatal("The length of the filter must be positive")
+        msg = "The length of the filter must be positive"
+        raise DSPFatal(msg)
 
     if len(superpulse) != len(noise_wf):
-        raise DSPFatal(
-            "The length of the superpulse must be equal to the length of the noise waveform"
-        )
+        msg = "The length of the superpulse must be equal to the length of the noise waveform"
+        raise DSPFatal(msg)
 
     if np.argmax(superpulse) <= 0 or np.argmax(superpulse) > len(superpulse):
-        raise DSPFatal(
+        msg = (
             "The index of the maximum of the superpulse must occur within the waveform"
         )
+        raise DSPFatal(msg)
 
     # Transform these to the frequency domain to eventually create the wiener filter
 
@@ -142,7 +147,8 @@ def wiener_filter(file_name_array: list[str]) -> np.ndarray:
             return
 
         if len(w_filter) != len(fft_w_in):
-            raise DSPFatal("The filter is not the same length of the input waveform")
+            msg = "The filter is not the same length of the input waveform"
+            raise DSPFatal(msg)
 
         fft_w_out[:] = fft_w_in * w_filter
 

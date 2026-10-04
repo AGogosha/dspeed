@@ -63,19 +63,25 @@ def wf_correction(
         return
 
     if start_idx < 0:
-        raise DSPFatal("start_idx must be positive")
+        msg = "start_idx must be positive"
+        raise DSPFatal(msg)
     if start_idx > len(w_in):
-        raise DSPFatal("start_idx must be shorter than input waveform size")
+        msg = "start_idx must be shorter than input waveform size"
+        raise DSPFatal(msg)
 
     if stop_idx <= 0:
-        raise DSPFatal("stop_idx must be positive")
+        msg = "stop_idx must be positive"
+        raise DSPFatal(msg)
     if stop_idx > len(w_in):
-        raise DSPFatal("stop_idx must be shorter than input waveform size")
+        msg = "stop_idx must be shorter than input waveform size"
+        raise DSPFatal(msg)
 
     if start_idx >= stop_idx:
-        raise DSPFatal("start_idx must be smaller than stop_idx")
+        msg = "start_idx must be smaller than stop_idx"
+        raise DSPFatal(msg)
     if (stop_idx - start_idx) > len(w_corr):
-        raise DSPFatal("stop_idx - start_idx must be smaller than len(w_corr)")
+        msg = "stop_idx - start_idx must be smaller than len(w_corr)"
+        raise DSPFatal(msg)
 
     w_out[:] = w_in[:]
 

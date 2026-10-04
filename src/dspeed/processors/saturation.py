@@ -57,10 +57,12 @@ def saturation(
         return
 
     if not np.floor(bit_depth_in) == bit_depth_in:
-        raise DSPFatal("The bit depth is not an integer")
+        msg = "The bit depth is not an integer"
+        raise DSPFatal(msg)
 
     if bit_depth_in <= 0:
-        raise DSPFatal("The bit depth is not positive")
+        msg = "The bit depth is not positive"
+        raise DSPFatal(msg)
 
     n_lo_out[0] = 0
     n_hi_out[0] = 0

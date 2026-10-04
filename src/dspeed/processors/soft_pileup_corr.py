@@ -57,13 +57,16 @@ def soft_pileup_corr(
         return
 
     if not np.floor(n_in) == n_in:
-        raise DSPFatal("The number of samples is not an integer")
+        msg = "The number of samples is not an integer"
+        raise DSPFatal(msg)
 
     if n_in < 2:
-        raise DSPFatal("The number of samples is not enough for a fit")
+        msg = "The number of samples is not enough for a fit"
+        raise DSPFatal(msg)
 
     if n_in > len(w_in):
-        raise DSPFatal("The number of samples is more than the waveform length")
+        msg = "The number of samples is more than the waveform length"
+        raise DSPFatal(msg)
 
     s1 = 0.0
     s2 = 0.0
@@ -133,13 +136,16 @@ def soft_pileup_corr_bl(
         return
 
     if not np.floor(n_in) == n_in:
-        raise DSPFatal("The number of samples is not an integer")
+        msg = "The number of samples is not an integer"
+        raise DSPFatal(msg)
 
     if n_in < 1:
-        raise DSPFatal("The number of samples is not enough for a fit")
+        msg = "The number of samples is not enough for a fit"
+        raise DSPFatal(msg)
 
     if n_in > len(w_in):
-        raise DSPFatal("The number of samples is more than the waveform length")
+        msg = "The number of samples is more than the waveform length"
+        raise DSPFatal(msg)
 
     s2 = 0.0
     s3 = 0.0

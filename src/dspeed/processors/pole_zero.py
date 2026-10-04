@@ -79,7 +79,8 @@ def pole_zero(w_in: np.ndarray, t_tau: float, w_out: np.ndarray) -> None:
 
     # Check the output
     if contains_nan(w_out):
-        raise DSPFatal("Pole-zero filter produced nans in output.")
+        msg = "Pole-zero filter produced nans in output."
+        raise DSPFatal(msg)
 
 
 # Note: for historical reasons, this does not use the recursive_filter
@@ -166,9 +167,8 @@ def double_pole_zero(
     if contains_nan(w_in) or np.isnan(t_tau1) or np.isnan(t_tau2) or np.isnan(frac):
         return
     if len(w_in) <= 3:
-        raise DSPFatal(
-            "The length of the waveform must be larger than 3 for the filter to work safely"
-        )
+        msg = "The length of the waveform must be larger than 3 for the filter to work safely"
+        raise DSPFatal(msg)
 
     a = np.exp(-1 / t_tau1)
     b = np.exp(-1 / t_tau2)
@@ -326,7 +326,8 @@ def inject_damped_oscillation(
 
     """
     if not 0 <= frac <= 1:
-        raise DSPFatal("frac must be between zero and one.")
+        msg = "frac must be between zero and one."
+        raise DSPFatal(msg)
 
     cw = np.cos(omega)
     cp = np.cos(phase)

@@ -46,7 +46,8 @@ def presum(w_in: np.ndarray, do_norm: int, ps_fact: int, w_out: np.ndarray) -> N
     if contains_nan(w_in):
         return
     if do_norm not in [0, 1]:
-        raise DSPFatal("do_norm type not found.")
+        msg = "do_norm type not found."
+        raise DSPFatal(msg)
 
     ps_fact[0] = int(len(w_in) // len(w_out))
     for i in range(0, len(w_out), 1):

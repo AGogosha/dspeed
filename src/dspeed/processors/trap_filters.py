@@ -53,13 +53,16 @@ def trap_filter(w_in: np.ndarray, rise: int, flat: int, w_out: np.ndarray) -> No
         return
 
     if int(rise) < 0:
-        raise DSPFatal("The number of samples in the rise section must be positive")
+        msg = "The number of samples in the rise section must be positive"
+        raise DSPFatal(msg)
 
     if int(flat) < 0:
-        raise DSPFatal("The number of samples in the flat section must be positive")
+        msg = "The number of samples in the flat section must be positive"
+        raise DSPFatal(msg)
 
     if 2 * int(rise) + int(flat) > len(w_in):
-        raise DSPFatal("The trapezoid width is wider than the waveform")
+        msg = "The trapezoid width is wider than the waveform"
+        raise DSPFatal(msg)
 
     w_out[0] = w_in[0]
     for i in range(1, rise, 1):
@@ -122,13 +125,16 @@ def trap_norm(w_in: np.ndarray, rise: int, flat: int, w_out: np.ndarray) -> None
         return
 
     if int(rise) < 0:
-        raise DSPFatal("The number of samples in the rise section must be positive")
+        msg = "The number of samples in the rise section must be positive"
+        raise DSPFatal(msg)
 
     if int(flat) < 0:
-        raise DSPFatal("The number of samples in the flat section must be positive")
+        msg = "The number of samples in the flat section must be positive"
+        raise DSPFatal(msg)
 
     if 2 * int(rise) + int(flat) > len(w_in):
-        raise DSPFatal("The trapezoid width is wider than the waveform")
+        msg = "The trapezoid width is wider than the waveform"
+        raise DSPFatal(msg)
 
     w_out[0] = w_in[0] / rise
     for i in range(1, rise, 1):
@@ -201,16 +207,20 @@ def asym_trap_filter(
         return
 
     if int(rise) < 0:
-        raise DSPFatal("The number of samples in the rise section must be positive")
+        msg = "The number of samples in the rise section must be positive"
+        raise DSPFatal(msg)
 
     if int(flat) < 0:
-        raise DSPFatal("The number of samples in the flat section must be positive")
+        msg = "The number of samples in the flat section must be positive"
+        raise DSPFatal(msg)
 
     if int(fall) < 0:
-        raise DSPFatal("The number of samples in the fall section must be positive")
+        msg = "The number of samples in the fall section must be positive"
+        raise DSPFatal(msg)
 
     if int(rise) + int(flat) + int(fall) > len(w_in):
-        raise DSPFatal("The trapezoid width is wider than the waveform")
+        msg = "The trapezoid width is wider than the waveform"
+        raise DSPFatal(msg)
 
     w_out[0] = w_in[0] / rise
     for i in range(1, rise, 1):
@@ -282,13 +292,16 @@ def trap_pickoff(
         return
 
     if int(rise) < 0:
-        raise DSPFatal("The number of samples in the rise section must be positive")
+        msg = "The number of samples in the rise section must be positive"
+        raise DSPFatal(msg)
 
     if int(flat) < 0:
-        raise DSPFatal("The number of samples in the flat section must be positive")
+        msg = "The number of samples in the flat section must be positive"
+        raise DSPFatal(msg)
 
     if 2 * int(rise) + int(flat) > len(w_in):
-        raise DSPFatal("The trapezoid width is wider than the waveform")
+        msg = "The trapezoid width is wider than the waveform"
+        raise DSPFatal(msg)
 
     if not (len(w_in) > np.ceil(t_pickoff) and np.floor(t_pickoff) >= 2 * rise + flat):
         return
