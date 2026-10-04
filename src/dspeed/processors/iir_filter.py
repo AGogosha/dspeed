@@ -3,14 +3,17 @@
 from __future__ import annotations
 
 from collections.abc import Collection
+from typing import TYPE_CHECKING
 
 import scipy.signal as sg
-from pint import Quantity
 
 from dspeed.errors import DSPFatal
 from dspeed.processing_chain import ProcChainVar
 from dspeed.processors import recursive_filter
 from dspeed.utils import GUFuncWrapper
+
+if TYPE_CHECKING:
+    from pint import Quantity
 
 # Generate recursive filters using scipy.signal
 
@@ -18,12 +21,12 @@ from dspeed.utils import GUFuncWrapper
 def iir_filter(
     freq: Quantity | float | Collection,
     order: int,
-    rp: float = None,
-    rs: float = None,
-    f_samp: Quantity | float | ProcChainVar = None,
+    rp: float | None = None,
+    rs: float | None = None,
+    f_samp: Quantity | float | ProcChainVar | None = None,
     ftype: str = "butter",
     btype: str = "lowpass",
-):
+) -> GUFuncWrapper:
     """Generator function for an iir filter based on
     ''scipy.signal.iirfilter''.
 
@@ -46,7 +49,7 @@ def iir_filter(
         design of filter: {'butter', 'cheby1', 'cheby2', 'ellip', 'bessel'}
         (default to butter)
     btype
-        type of filter: {‘lowpass’, ‘highpass’, ‘bandpass’, ‘bandstop’}
+        type of filter: {'lowpass', 'highpass', 'bandpass', 'bandstop'}
         (default to lowpass)
 
     YAML Configuration Example
@@ -114,8 +117,8 @@ def iir_filter(
 def notch_filter(
     freq: Quantity | float,
     bandwidth: Quantity | float,
-    f_samp: Quantity | float | ProcChainVar = None,
-):
+    f_samp: Quantity | float | ProcChainVar | None = None,
+) -> GUFuncWrapper:
     """Generator function for a notch filter
 
     Parameters
@@ -148,10 +151,7 @@ def notch_filter(
     """
     if isinstance(f_samp, ProcChainVar):
         f_samp = 1 / f_samp.period
-    if f_samp is not None:
-        f_c = float(2 * freq / f_samp)
-    else:
-        f_c = freq
+    f_c = float(2 * freq / f_samp) if f_samp is not None else freq
     q = float(freq / bandwidth)
 
     if not 0 <= f_c <= 1:
@@ -174,8 +174,8 @@ def notch_filter(
 def peak_filter(
     freq: Quantity | float,
     bandwidth: Quantity | float,
-    f_samp: Quantity | float | ProcChainVar = None,
-):
+    f_samp: Quantity | float | ProcChainVar | None = None,
+) -> GUFuncWrapper:
     """Generator function for a peak filter
 
     Parameters
@@ -208,10 +208,7 @@ def peak_filter(
     """
     if isinstance(f_samp, ProcChainVar):
         f_samp = 1 / f_samp.period
-    if f_samp is not None:
-        f_c = float(2 * freq / f_samp)
-    else:
-        f_c = freq
+    f_c = float(2 * freq / f_samp) if f_samp is not None else freq
     q = float(freq / bandwidth)
 
     if not 0 <= f_c <= 1:

@@ -90,9 +90,7 @@ def ifft(dft_in, w_out):
     np.fft.irfft(dft_in, out=w_out)
 
 
-@vectorize(
-    ["float64(complex128, uint32)", "float32(complex64, uint32)"], **nb_kwargs
-)
+@vectorize(["float64(complex128, uint32)", "float32(complex64, uint32)"], **nb_kwargs)
 def abs2norm(x, norm):
     """Helper for psd"""
     return (x.real * x.real + x.imag * x.imag) / norm

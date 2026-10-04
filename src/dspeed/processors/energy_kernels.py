@@ -19,9 +19,7 @@ from dspeed.utils import numba_defaults_kwargs as nb_kwargs
         forceobj=True,
     ),
 )
-def cusp_filter(
-    sigma: float, flat: int, decay: int, kernel: np.ndarray
-) -> None:
+def cusp_filter(sigma: float, flat: int, decay: int, kernel: np.ndarray) -> None:
     """Calculates CUSP kernel.
 
     Parameters
@@ -73,9 +71,7 @@ def cusp_filter(
     for ind in range(lt, lt + flat_int + 1, 1):
         kernel[ind] = 1
     for ind in range(lt + flat_int + 1, len(kernel), 1):
-        kernel[ind] = float(
-            np.sinh((len(kernel) - ind) / sigma) / np.sinh(lt / sigma)
-        )
+        kernel[ind] = float(np.sinh((len(kernel) - ind) / sigma) / np.sinh(lt / sigma))
 
     den = [1, -np.exp(-1 / decay)]
     kernel[:] = np.convolve(kernel, den, "same")
@@ -277,9 +273,7 @@ def dplms(
         msg = "The penalized coefficient for the ref matrix must be 0 or 1"
         raise DSPFatal(msg)
     for i in ff:
-        ref_mat += np.outer(
-            reference[flo + i : fhi + i], reference[flo + i : fhi + i]
-        )
+        ref_mat += np.outer(reference[flo + i : fhi + i], reference[flo + i : fhi + i])
         ref_sig += reference[flo + i : fhi + i]
     ref_mat /= len(ff)
 

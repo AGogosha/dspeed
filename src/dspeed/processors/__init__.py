@@ -23,7 +23,8 @@ several advantages:
    :class:`~numpy.ufunc` ``np.add(a, b, out=c)`` (equivalently ``c=a+b``) is
    equivalent to: ::
 
-       for i in range(len(c)): c[i] = a[i] + b[i]
+       for i in range(len(c)):
+           c[i] = a[i] + b[i]
 
    Loops are slow in python since it is an interpreted language; vectorized
    commands remove the loop and only call the Python interpreter once.
@@ -162,15 +163,18 @@ __all__ = list(_modules)
 
 
 # Lazy loader
-def __getattr__(name):
+def __getattr__(name: str) -> dict:
     if name in _modules:
         mod_name = _modules[name]
         mod = import_module(f".{mod_name}", __name__)
-        funs = {f: getattr(mod, f) for f, m in _modules.items() if m == mod_name}
+        funs = {
+            f: getattr(mod, f) for f, m in _modules.items() if m == mod_name
+        }
         globals().update(funs)
         return funs[name]
-    raise AttributeError(f"module {__name__} has no attribute {name}")
+    msg = f"module {__name__} has no attribute {name}"
+    raise AttributeError(msg)
 
 
-def __dir__():
+def __dir__() -> list:
     return __all__ + list(globals().keys())

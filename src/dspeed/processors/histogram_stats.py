@@ -157,6 +157,14 @@ def histogram_peakstats(
         raise DSPFatal(msg)
 
 
+@guvectorize(
+    [
+        "void(float32[:], float32[:], float32[:], float32[:],float32[:],float32)",
+        "void(float64[:], float64[:], float64[:], float64[:],float64[:],float64)",
+    ],
+    "(n),(m),(),(),(),()",
+    **nb_kwargs,
+)
 def histogram_stats(
     weights_in: np.ndarray,
     edges_in: np.ndarray,
