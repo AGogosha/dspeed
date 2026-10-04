@@ -19,7 +19,9 @@ from dspeed.utils import numba_defaults_kwargs as nb_kwargs
         forceobj=True,
     ),
 )
-def cusp_filter(sigma: float, flat: int, decay: int, kernel: np.ndarray) -> None:
+def cusp_filter(
+    sigma: float, flat: int, decay: int, kernel: np.ndarray
+) -> None:
     """Calculates CUSP kernel.
 
     Parameters
@@ -67,7 +69,9 @@ def cusp_filter(sigma: float, flat: int, decay: int, kernel: np.ndarray) -> None
     for ind in range(lt, lt + flat_int + 1, 1):
         kernel[ind] = 1
     for ind in range(lt + flat_int + 1, len(kernel), 1):
-        kernel[ind] = float(np.sinh((len(kernel) - ind) / sigma) / np.sinh(lt / sigma))
+        kernel[ind] = float(
+            np.sinh((len(kernel) - ind) / sigma) / np.sinh(lt / sigma)
+        )
 
     den = [1, -np.exp(-1 / decay)]
     kernel[:] = np.convolve(kernel, den, "same")
@@ -83,7 +87,7 @@ def cusp_filter(sigma: float, flat: int, decay: int, kernel: np.ndarray) -> None
         forceobj=True,
     ),
 )
-def zac_filter(sigma: float, flat: int, decay: int, kernel: np.array) -> None:
+def zac_filter(sigma: float, flat: int, decay: int, kernel: np.ndarray) -> None:
     """Calculates ZAC (Zero Area CUSP) kernel.
 
     Parameters
@@ -174,7 +178,7 @@ def dplms(
     a2: float,
     a3: float,
     ff: int,
-    kernel: np.array,
+    kernel: np.ndarray,
 ) -> None:
     """Calculate and apply an optimum DPLMS filter to the waveform.
 
@@ -235,16 +239,24 @@ def dplms(
         raise DSPFatal("The length of the reference signal must be positive")
 
     if a1 <= 0:
-        raise DSPFatal("The penalized coefficient for the noise must be positive")
+        raise DSPFatal(
+            "The penalized coefficient for the noise must be positive"
+        )
 
     if a2 <= 0:
-        raise DSPFatal("The penalized coefficient for the reference must be positive")
+        raise DSPFatal(
+            "The penalized coefficient for the reference must be positive"
+        )
 
     if a3 <= 0:
-        raise DSPFatal("The penalized coefficient for the zero area must be positive")
+        raise DSPFatal(
+            "The penalized coefficient for the zero area must be positive"
+        )
 
     if ff <= 0:
-        raise DSPFatal("The penalized coefficient for the ref matrix must be positive")
+        raise DSPFatal(
+            "The penalized coefficient for the ref matrix must be positive"
+        )
 
     # reference matrix
     length = len(kernel)
@@ -258,9 +270,13 @@ def dplms(
     elif ff == 1:
         ff = [-1, 0, 1]
     else:
-        raise DSPFatal("The penalized coefficient for the ref matrix must be 0 or 1")
+        raise DSPFatal(
+            "The penalized coefficient for the ref matrix must be 0 or 1"
+        )
     for i in ff:
-        ref_mat += np.outer(reference[flo + i : fhi + i], reference[flo + i : fhi + i])
+        ref_mat += np.outer(
+            reference[flo + i : fhi + i], reference[flo + i : fhi + i]
+        )
         ref_sig += reference[flo + i : fhi + i]
     ref_mat /= len(ff)
 

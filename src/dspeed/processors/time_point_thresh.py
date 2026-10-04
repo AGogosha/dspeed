@@ -215,7 +215,9 @@ def interpolated_time_point_thresh(
     elif mode_in in (ord("b"), ord("c")):  # return index before crossing
         t_out[0] = i_cross
     elif mode_in == ord("r"):  # return closest index to crossing
-        if abs(a_threshold - w_in[i_cross]) < abs(a_threshold - w_in[i_cross + 1]):
+        if abs(a_threshold - w_in[i_cross]) < abs(
+            a_threshold - w_in[i_cross + 1]
+        ):
             t_out[0] = i_cross
         else:
             t_out[0] = i_cross + 1
@@ -336,11 +338,15 @@ def multi_time_point_thresh(
     i_tp = i_start
     if i_tp < len(sorted_idx):
         idx = sorted_idx[i_tp]
-        for i_wf in range(t_start, len(w_in) - 1 if polarity > 0 else -1, polarity):
+        for i_wf in range(
+            t_start, len(w_in) - 1 if polarity > 0 else -1, polarity
+        ):
             if i_tp >= len(sorted_idx):
                 break
             while w_in[i_wf] <= a_threshold[idx] < w_in[i_wf + polarity]:
-                if mode_in == ord("i"):  # return index closest to start of search
+                if mode_in == ord(
+                    "i"
+                ):  # return index closest to start of search
                     t_out[idx] = i_wf
                 elif mode_in in (
                     ord("a"),
@@ -385,7 +391,9 @@ def multi_time_point_thresh(
             if i_tp < 0:
                 break
             while w_in[i_wf] <= a_threshold[idx] < w_in[i_wf + polarity]:
-                if mode_in == ord("i"):  # return index closest to start of search
+                if mode_in == ord(
+                    "i"
+                ):  # return index closest to start of search
                     t_out[idx] = i_wf
                 elif mode_in in (
                     ord("a"),
@@ -436,8 +444,8 @@ def bi_level_zero_crossing_time_points(
     gate_time_in: int,
     t_start_in: int,
     n_crossings_out: int,
-    polarity_out: np.array,
-    t_trig_times_out: np.array,
+    polarity_out: np.ndarray,
+    t_trig_times_out: np.ndarray,
 ) -> None:
     """Find the indices where a waveform value crosses 0 after crossing the threshold and reaching the next threshold within some gate time.
     Works on positive and negative polarity waveforms.
@@ -521,7 +529,9 @@ def bi_level_zero_crossing_time_points(
             if crossed_zero and is_below_thresh:
                 if i - is_below_thresh < gate_time_in:
                     if n_crossings_out[0] < len(polarity_out):
-                        t_trig_times_out[n_crossings_out[0]] = neg_trig_time_candidate
+                        t_trig_times_out[n_crossings_out[0]] = (
+                            neg_trig_time_candidate
+                        )
                         polarity_out[n_crossings_out[0]] = 0
                     n_crossings_out[0] += 1
                 else:
@@ -541,7 +551,9 @@ def bi_level_zero_crossing_time_points(
             if crossed_zero and is_above_thresh:
                 if i - is_above_thresh < gate_time_in:
                     if n_crossings_out[0] < len(polarity_out):
-                        t_trig_times_out[n_crossings_out[0]] = pos_trig_time_candidate
+                        t_trig_times_out[n_crossings_out[0]] = (
+                            pos_trig_time_candidate
+                        )
                         polarity_out[n_crossings_out[0]] = 1
                     n_crossings_out[0] += 1
                 else:

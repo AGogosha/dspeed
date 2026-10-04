@@ -22,7 +22,7 @@ from dspeed.utils import numba_defaults_kwargs as nb_kwargs
     ),
 )
 def convolve_wf(
-    w_in: np.ndarray, kernel: np.array, mode_in: np.int8, w_out: np.ndarray
+    w_in: np.ndarray, kernel: np.ndarray, mode_in: np.int8, w_out: np.ndarray
 ) -> None:
     """Parameters
     ----------
@@ -78,7 +78,7 @@ def convolve_wf(
     copy_out=True,
 )
 def fft_convolve_wf(
-    w_in: np.ndarray, kernel: np.array, mode_in: np.int8, w_out: np.ndarray
+    w_in: np.ndarray, kernel: np.ndarray, mode_in: np.int8, w_out: np.ndarray
 ) -> None:
     """Parameters
     ----------

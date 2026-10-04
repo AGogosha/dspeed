@@ -68,7 +68,9 @@ def optimize_nnls(
 
     """
 
-    def numba_ix(arr: np.array, rows: np.array, cols: np.array) -> np.array:
+    def numba_ix(
+        arr: np.ndarray, rows: np.ndarray, cols: np.ndarray
+    ) -> np.ndarray:
         """Numba compatible implementation of arr[np.ix_(rows, cols)] for 2D arrays.
         from https://github.com/numba/numba/issues/5894#issuecomment-974701551
         :param arr: 2D array to be indexed

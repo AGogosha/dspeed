@@ -18,7 +18,7 @@ from dspeed.utils import numba_defaults_kwargs as nb_kwargs
     "(n),()->(n)",
     **nb_kwargs,
 )
-def rc_cr2(w_in: np.array, t_tau: float, w_out: np.array) -> None:
+def rc_cr2(w_in: np.ndarray, t_tau: float, w_out: np.ndarray) -> None:
     """Apply a RC-CR^2 filter with the provided time
     constant to the waveform. Useful for determining pileup
     and trigger times. The filter was computed using a matched z-transform
@@ -87,7 +87,9 @@ def rc_cr2(w_in: np.array, t_tau: float, w_out: np.array) -> None:
             + num_2 * w_in[i - 1]
             + num_3 * w_in[i - 2]
         ) / denom_1
-        w_out[i] = w_tmp[3]  # Put the higher precision buffer into the desired output
+        w_out[i] = w_tmp[
+            3
+        ]  # Put the higher precision buffer into the desired output
         # shuffle the buffers
         w_tmp[0] = w_tmp[1]
         w_tmp[1] = w_tmp[2]

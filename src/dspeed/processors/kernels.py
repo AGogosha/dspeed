@@ -19,7 +19,7 @@ from dspeed.utils import numba_defaults_kwargs as nb_kwargs
         forceobj=True,
     ),
 )
-def t0_filter(rise: int, fall: int, kernel: np.array) -> None:
+def t0_filter(rise: int, fall: int, kernel: np.ndarray) -> None:
     """Apply a modified, asymmetric trapezoidal filter to the waveform.
 
     Parameters
@@ -100,7 +100,9 @@ def moving_slope(kernel):
     sum_x = length * (length + 1) / 2
     sum_x2 = length * (length + 1) * (2 * length + 1) / 6
 
-    kernel[:] = (np.arange(1, length + 1, 1) * length) - (np.ones(length) * sum_x)
+    kernel[:] = (np.arange(1, length + 1, 1) * length) - (
+        np.ones(length) * sum_x
+    )
     kernel[:] /= length * sum_x2 - sum_x * sum_x
     kernel[:] = kernel[::-1]
 
@@ -112,7 +114,7 @@ def moving_slope(kernel):
         forceobj=True,
     ),
 )
-def step(weight_pos: int, kernel: np.array) -> None:
+def step(weight_pos: int, kernel: np.ndarray) -> None:
     """Process waveforms with a step function.
 
     Parameters
