@@ -5,19 +5,21 @@ from __future__ import annotations
 import numpy as np
 from numba import guvectorize
 
-from ..errors import DSPFatal
-from ..utils import numba_defaults_kwargs as nb_kwargs
-from .utils import contains_nan
+from dspeed.errors import DSPFatal
+from dspeed.processors.utils import contains_nan
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 @guvectorize(
-    ["void(float32[:], float32, float32[:])", "void(float64[:], float64, float64[:])"],
+    [
+        "void(float32[:], float32, float32[:])",
+        "void(float64[:], float64, float64[:])",
+    ],
     "(n),()->(n)",
     **nb_kwargs,
 )
 def rc_cr2(w_in: np.array, t_tau: float, w_out: np.array) -> None:
-    """
-    Apply a RC-CR^2 filter with the provided time
+    """Apply a RC-CR^2 filter with the provided time
     constant to the waveform. Useful for determining pileup
     and trigger times. The filter was computed using a matched z-transform
     to keep the poles/zeroes of the analog transfer function in the same location.
@@ -43,6 +45,7 @@ def rc_cr2(w_in: np.array, t_tau: float, w_out: np.array) -> None:
             - wf_bl
             - "300*ns"
             - wf_RC_CR2
+
     """
     w_out[:] = np.nan
 

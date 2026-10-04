@@ -6,9 +6,9 @@ import numpy as np
 from numba import guvectorize
 from scipy.signal import fftconvolve
 
-from ..errors import DSPFatal
-from ..utils import dspeed_guvectorize
-from ..utils import numba_defaults_kwargs as nb_kwargs
+from dspeed.errors import DSPFatal
+from dspeed.utils import dspeed_guvectorize
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 @guvectorize(
@@ -23,9 +23,8 @@ from ..utils import numba_defaults_kwargs as nb_kwargs
 )
 def convolve_wf(
     w_in: np.ndarray, kernel: np.array, mode_in: np.int8, w_out: np.ndarray
-) -> None:  #
-    """
-    Parameters
+) -> None:
+    """Parameters
     ----------
     w_in
         the input waveform.
@@ -36,6 +35,7 @@ def convolve_wf(
         explained here: https://numpy.org/doc/stable/reference/generated/numpy.convolve.html
     w_out
         the filtered waveform.
+
     """
     w_out[:] = np.nan
 
@@ -46,28 +46,27 @@ def convolve_wf(
         return
 
     if len(kernel) > len(w_in):
-        raise DSPFatal("The filter is longer than the input waveform")
+        msg = "The filter is longer than the input waveform"
+        raise DSPFatal(msg)
 
     if chr(mode_in) == "f":
         mode = "full"
         if len(w_out) != len(w_in) + len(kernel) - 1:
-            raise DSPFatal(
-                f"Output waveform has length {len(w_out)}; expect {len(w_in) + len(kernel) - 1}"
-            )
+            msg = f"Output waveform has length {len(w_out)}; expect {len(w_in) + len(kernel) - 1}"
+            raise DSPFatal(msg)
     elif chr(mode_in) == "v":
         mode = "valid"
         if len(w_out) != abs(len(w_in) - len(kernel)) + 1:
-            raise DSPFatal(
-                f"Output waveform has length {len(w_out)}; expect {abs(len(w_in) - len(kernel)) + 1}"
-            )
+            msg = f"Output waveform has length {len(w_out)}; expect {abs(len(w_in) - len(kernel)) + 1}"
+            raise DSPFatal(msg)
     elif chr(mode_in) == "s":
         mode = "same"
         if len(w_out) != max(len(w_in), len(kernel)):
-            raise DSPFatal(
-                "Output waveform has length {len(w_out)}; expect {max(len(w_in), len(kernel))}"
-            )
+            msg = "Output waveform has length {len(w_out)}; expect {max(len(w_in), len(kernel))}"
+            raise DSPFatal(msg)
     else:
-        raise DSPFatal("Invalid mode")
+        msg_0 = "Invalid mode"
+        raise DSPFatal(msg_0)
 
     w_out[:] = np.convolve(w_in, kernel, mode=mode)
 
@@ -80,9 +79,8 @@ def convolve_wf(
 )
 def fft_convolve_wf(
     w_in: np.ndarray, kernel: np.array, mode_in: np.int8, w_out: np.ndarray
-) -> None:  #
-    """
-    Parameters
+) -> None:
+    """Parameters
     ----------
     w_in
         the input waveform.
@@ -93,6 +91,7 @@ def fft_convolve_wf(
         explained here: https://numpy.org/doc/stable/reference/generated/numpy.convolve.html
     w_out
         the filtered waveform.
+
     """
     w_out[:] = np.nan
     nan_ids = np.isnan(w_in).any(axis=-1)
@@ -102,7 +101,8 @@ def fft_convolve_wf(
         return
 
     if kernel.shape[-1] > w_in.shape[-1]:
-        raise DSPFatal("The filter is longer than the input waveform")
+        msg = "The filter is longer than the input waveform"
+        raise DSPFatal(msg)
 
     if chr(mode_in) == "f":
         mode = "full"
@@ -111,7 +111,8 @@ def fft_convolve_wf(
     elif chr(mode_in) == "s":
         mode = "same"
     else:
-        raise DSPFatal("Invalid mode")
+        msg_0 = "Invalid mode"
+        raise DSPFatal(msg_0)
 
     if len(kernel.shape) < len(w_in.shape):
         kernel = kernel.reshape((1, *kernel.shape))
@@ -130,10 +131,9 @@ def fft_convolve_wf(
     ),
 )
 def reflected_convolve_wf(
-    w_in: np.ndarray, kernel: np.array, w_out: np.ndarray
+    w_in: np.ndarray, kernel: np.ndarray, w_out: np.ndarray
 ) -> None:
-    """
-    Convolve a waveform with a kernel using reflection padding at the boundaries.
+    """Convolve a waveform with a kernel using reflection padding at the boundaries.
 
     This function extends the input waveform by reflecting its edges before
     convolution to minimize boundary artifacts. The reflection length is
@@ -159,8 +159,8 @@ def reflected_convolve_wf(
     - If either w_in or kernel contains NaN values, w_out is set to NaN.
     - Uses 'reflect' mode padding to extend the signal at boundaries.
     - The extension length is (len(kernel) // 2) + 1 on each side.
-    """
 
+    """
     w_out[:] = np.nan
 
     if np.isnan(w_in).any():
@@ -170,7 +170,8 @@ def reflected_convolve_wf(
         return
 
     if len(kernel) > len(w_in):
-        raise DSPFatal("The filter is longer than the input waveform")
+        msg = "The filter is longer than the input waveform"
+        raise DSPFatal(msg)
 
     extension_length = int(len(kernel) / 2) + 1
 

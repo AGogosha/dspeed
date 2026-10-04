@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 from numba import vectorize
 
-from ..utils import numba_defaults_kwargs as nb_kwargs
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 @vectorize(
@@ -15,9 +15,8 @@ from ..utils import numba_defaults_kwargs as nb_kwargs
     ],
     **nb_kwargs,
 )
-def round_to_nearest(val: np.ndarray, to_nearest: int | float) -> None:
-    """
-    Round value to nearest multiple of to_nearest.
+def round_to_nearest(val: np.ndarray, to_nearest: float) -> None:
+    """Round value to nearest multiple of to_nearest.
 
     Parameters
     ----------
@@ -48,12 +47,11 @@ def round_to_nearest(val: np.ndarray, to_nearest: int | float) -> None:
           - ns
 
       t_rounded: "round(t_in, 1*us)"
-    """
 
+    """
     if np.isnan(val):
         return np.nan
-    else:
-        return to_nearest * round(val / to_nearest)
+    return to_nearest * round(val / to_nearest)
 
 
 @vectorize(
@@ -63,9 +61,8 @@ def round_to_nearest(val: np.ndarray, to_nearest: int | float) -> None:
     ],
     **nb_kwargs,
 )
-def floor_to_nearest(val: np.ndarray, to_nearest: int | float) -> None:
-    """
-    Return largest multiple of to_nearest that is <= val
+def floor_to_nearest(val: np.ndarray, to_nearest: float) -> None:
+    """Return largest multiple of to_nearest that is <= val
 
     Parameters
     ----------
@@ -96,12 +93,11 @@ def floor_to_nearest(val: np.ndarray, to_nearest: int | float) -> None:
           - ns
 
       t_floor: "floor(t_in, 1*us)"
-    """
 
+    """
     if np.isnan(val):
         return np.nan
-    else:
-        return to_nearest * np.floor(val / to_nearest)
+    return to_nearest * np.floor(val / to_nearest)
 
 
 @vectorize(
@@ -111,9 +107,8 @@ def floor_to_nearest(val: np.ndarray, to_nearest: int | float) -> None:
     ],
     **nb_kwargs,
 )
-def ceil_to_nearest(val: np.ndarray, to_nearest: int | float) -> None:
-    """
-    Return smallest multiple of to_nearest that is >= val.
+def ceil_to_nearest(val: np.ndarray, to_nearest: float) -> None:
+    """Return smallest multiple of to_nearest that is >= val.
 
     Parameters
     ----------
@@ -144,12 +139,11 @@ def ceil_to_nearest(val: np.ndarray, to_nearest: int | float) -> None:
           - ns
 
       t_ceil: "ceil(t_in, 1*us)"
-    """
 
+    """
     if np.isnan(val):
         return np.nan
-    else:
-        return to_nearest * np.ceil(val / to_nearest)
+    return to_nearest * np.ceil(val / to_nearest)
 
 
 @vectorize(
@@ -159,9 +153,8 @@ def ceil_to_nearest(val: np.ndarray, to_nearest: int | float) -> None:
     ],
     **nb_kwargs,
 )
-def trunc_to_nearest(val: np.ndarray, to_nearest: int | float) -> None:
-    """
-    Return multiple of to_nearest that is closest to val, towards zero
+def trunc_to_nearest(val: np.ndarray, to_nearest: float) -> None:
+    """Return multiple of to_nearest that is closest to val, towards zero
 
     Parameters
     ----------
@@ -192,9 +185,8 @@ def trunc_to_nearest(val: np.ndarray, to_nearest: int | float) -> None:
           - ns
 
       t_trunc: "trunc(t_in, 1*us)"
-    """
 
+    """
     if np.isnan(val):
         return np.nan
-    else:
-        return to_nearest * np.trunc(val / to_nearest)
+    return to_nearest * np.trunc(val / to_nearest)

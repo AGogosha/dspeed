@@ -7,8 +7,8 @@ from math import exp, log
 import numpy as np
 from numba import guvectorize
 
-from ..utils import numba_defaults_kwargs as nb_kwargs
-from .utils import contains_nan
+from dspeed.processors.utils import contains_nan
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 @guvectorize(
@@ -20,7 +20,12 @@ from .utils import contains_nan
     **nb_kwargs,
 )
 def inject_sig_pulse(
-    wf_in: np.ndarray, t0: int, rt: float, a: float, decay: float, wf_out: np.ndarray
+    wf_in: np.ndarray,
+    t0: int,
+    rt: float,
+    a: float,
+    decay: float,
+    wf_out: np.ndarray,
 ) -> None:
     r"""Inject sigmoid pulse into existing waveform to simulate pileup.
 
@@ -42,8 +47,8 @@ def inject_sig_pulse(
         the decay parameter :math:`\tau` of the injected waveform.
     wf_out
         the output waveform.
-    """
 
+    """
     wf_out[:] = np.nan
 
     if (
@@ -73,7 +78,12 @@ def inject_sig_pulse(
     **nb_kwargs,
 )
 def inject_exp_pulse(
-    wf_in: np.ndarray, t0: int, rt: float, a: float, decay: float, wf_out: np.ndarray
+    wf_in: np.ndarray,
+    t0: int,
+    rt: float,
+    a: float,
+    decay: float,
+    wf_out: np.ndarray,
 ) -> None:
     """Inject exponential pulse into existing waveform to simulate pileup.
 
@@ -91,8 +101,8 @@ def inject_exp_pulse(
         the exponential decay constant of the injected waveform.
     wf_out
         the output waveform.
-    """
 
+    """
     wf_out[:] = np.nan
 
     if (

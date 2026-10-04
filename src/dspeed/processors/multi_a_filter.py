@@ -3,9 +3,9 @@
 import numpy as np
 from numba import guvectorize
 
-from ..errors import DSPFatal
-from ..processors import fixed_time_pickoff
-from ..utils import numba_defaults_kwargs as nb_kwargs
+from dspeed.errors import DSPFatal
+from dspeed.processors import fixed_time_pickoff
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 @guvectorize(
@@ -29,8 +29,8 @@ def multi_a_filter(w_in, vt_maxs_in, va_max_out):
         the array of max positions for each waveform.
     va_max_out
         an array (in-place filled) of the amplitudes of the maximums of the waveform.
-    """
 
+    """
     # Initialize output parameters
 
     va_max_out[:] = np.nan

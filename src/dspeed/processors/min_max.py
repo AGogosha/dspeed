@@ -5,8 +5,8 @@ from __future__ import annotations
 import numpy as np
 from numba import guvectorize
 
-from ..utils import numba_defaults_kwargs as nb_kwargs
-from .utils import contains_nan
+from dspeed.processors.utils import contains_nan
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 @guvectorize(
@@ -59,6 +59,7 @@ def min_max(
             - ns
             - ADC
             - ADC
+
     """
     a_min[0] = np.nan
     a_max[0] = np.nan
@@ -124,8 +125,8 @@ def min_max_norm(
             - wf_norm
           unit:
             - ADC
-    """
 
+    """
     w_out[:] = np.nan
 
     if contains_nan(w_in):

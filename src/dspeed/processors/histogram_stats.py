@@ -5,9 +5,9 @@ from __future__ import annotations
 import numpy as np
 from numba import guvectorize
 
-from ..errors import DSPFatal
-from ..utils import numba_defaults_kwargs as nb_kwargs
-from .utils import contains_nan
+from dspeed.errors import DSPFatal
+from dspeed.processors.utils import contains_nan
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 @guvectorize(
@@ -27,8 +27,7 @@ def histogram_peakstats(
     mode_out: float,
     width_out: float,
 ) -> None:
-    """
-    Compute peak statistics for a histogram, including mode and width.
+    """Compute peak statistics for a histogram, including mode and width.
     The mode is determined either by the global maximum or by a user-specified value.
     The width is computed according to the selected width_type (FWHM or a HWHM option).
     Best to use the histogram from histogram_around_mode.
@@ -77,11 +76,12 @@ def histogram_peakstats(
           unit:
             - ADC
             - ADC
+
     See Also
     --------
     .histogram_around_mode
-    """
 
+    """
     mode_out[0] = np.nan
     width_out[0] = np.nan
 
@@ -95,21 +95,20 @@ def histogram_peakstats(
     # find global maximum search
     max_index = 0
     if np.isnan(max_in):
-        for i in range(0, n_bins):
+        for i in range(n_bins):
             if weights_in[i] > weights_in[max_index]:
                 max_index = i
 
     # is user specifies mean justfind mean index
+    elif max_in > edges_in[-1]:
+        max_index = n_bins - 1
+    elif max_in < edges_in[0]:
+        max_index = 0
     else:
-        if max_in > edges_in[-1]:
-            max_index = n_bins - 1
-        elif max_in < edges_in[0]:
-            max_index = 0
-        else:
-            for i in range(0, n_bins):
-                if edges_in[i] <= max_in < edges_in[i + 1]:
-                    max_index = i
-                    break
+        for i in range(n_bins):
+            if edges_in[i] <= max_in < edges_in[i + 1]:
+                max_index = i
+                break
 
     # bin center
     mode_out[0] = edges_in[max_index] + 0.5 * (
@@ -213,11 +212,12 @@ def histogram_stats(
             - ADC
             - none
             - ADC
+
     See Also
     --------
     .histogram
-    """
 
+    """
     fwhm_out[0] = np.nan
     mode_out[0] = np.nan
     max_out[0] = np.nan
@@ -236,13 +236,12 @@ def histogram_stats(
                 max_index = i
 
     # is user specifies mean justfind mean index
+    elif max_in > edges_in[-2]:
+        max_index = len(weights_in) - 1
     else:
-        if max_in > edges_in[-2]:
-            max_index = len(weights_in) - 1
-        else:
-            for i in range(0, len(weights_in), 1):
-                if abs(max_in - edges_in[i]) < abs(max_in - edges_in[max_index]):
-                    max_index = i
+        for i in range(0, len(weights_in), 1):
+            if abs(max_in - edges_in[i]) < abs(max_in - edges_in[max_index]):
+                max_index = i
 
     mode_out[0] = max_index
     # returns left bin edge
@@ -257,6 +256,5 @@ def histogram_stats(
     # look also into the other direction
     for i in range(0, max_index, 1):
         if weights_in[i] >= 0.5 * weights_in[max_index] and weights_in[i] != 0:
-            if fwhm_out[0] < abs(max_out[0] - edges_in[i]):
-                fwhm_out[0] = abs(max_out[0] - edges_in[i])
+            fwhm_out[0] = max(fwhm_out[0], abs(max_out[0] - edges_in[i]))
             break

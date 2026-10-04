@@ -5,8 +5,8 @@ from __future__ import annotations
 import numpy as np
 from numba import guvectorize
 
-from ..utils import numba_defaults_kwargs as nb_kwargs
-from .utils import contains_nan
+from dspeed.processors.utils import contains_nan
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 @guvectorize(
@@ -15,8 +15,7 @@ from .utils import contains_nan
     **nb_kwargs,
 )
 def log_check(w_in: np.ndarray, w_log: np.ndarray) -> None:
-    """
-    Calculate the logarithm of the waveform if all its values
+    """Calculate the logarithm of the waveform if all its values
     are positive; otherwise, return NaN.
 
     Parameters
@@ -37,6 +36,7 @@ def log_check(w_in: np.ndarray, w_log: np.ndarray) -> None:
           args:
             - "wf_blsub[2100:]"
             - wf_logged
+
     """
     w_log[:] = np.nan
 

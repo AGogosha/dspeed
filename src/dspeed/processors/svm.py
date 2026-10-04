@@ -3,16 +3,15 @@
 from __future__ import annotations
 
 import pickle
-from typing import Callable
+from collections.abc import Callable
 
 import numpy as np
 
-from ..utils import GUFuncWrapper
+from dspeed.utils import GUFuncWrapper
 
 
 def svm_predict(svm_file: str) -> Callable:
-    """
-    Apply a Support Vector Machine (SVM) to an input waveform to
+    """Apply a Support Vector Machine (SVM) to an input waveform to
     predict a data cleaning label.
 
     Note
@@ -43,8 +42,8 @@ def svm_predict(svm_file: str) -> Callable:
           - dwt_norm
         init_args:
           - "'svm_p*_r*_T***Z.sav'"
-    """
 
+    """
     if svm_file == 0:
         svm = None
     else:
@@ -57,8 +56,7 @@ def svm_predict(svm_file: str) -> Callable:
 
         if w_in.ndim == 1:
             return svm.predict(w_in.reshape(1, -1))
-        else:
-            return svm.predict(w_in)
+        return svm.predict(w_in)
 
     return GUFuncWrapper(
         svm_proc,

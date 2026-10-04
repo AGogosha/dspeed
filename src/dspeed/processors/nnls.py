@@ -5,8 +5,8 @@ from __future__ import annotations
 import numpy as np
 from numba import guvectorize
 
-from ..errors import DSPFatal
-from ..utils import numba_defaults_kwargs as nb_kwargs
+from dspeed.errors import DSPFatal
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 @guvectorize(
@@ -65,11 +65,11 @@ def optimize_nnls(
             - 1e-6
             - True
             - nnls_solution
+
     """
 
     def numba_ix(arr: np.array, rows: np.array, cols: np.array) -> np.array:
-        """
-        Numba compatible implementation of arr[np.ix_(rows, cols)] for 2D arrays.
+        """Numba compatible implementation of arr[np.ix_(rows, cols)] for 2D arrays.
         from https://github.com/numba/numba/issues/5894#issuecomment-974701551
         :param arr: 2D array to be indexed
         :param rows: Row indices
@@ -86,9 +86,7 @@ def optimize_nnls(
         return slice_1d.reshape((len(rows), len(cols)))
 
     def is_singular(matrix):
-        """
-        Returns True if matrix det = 0 i.e. matrix is singular.
-        """
+        """Returns True if matrix det = 0 i.e. matrix is singular."""
         det = np.linalg.det(matrix)
         return abs(det) < np.finfo(np.float64).eps
 
@@ -131,7 +129,7 @@ def optimize_nnls(
         # check if matrix has full rank before solving
         if is_singular(mat) and allow_singularity:
             x[:] = np.nan
-            return None
+            return
 
         s[p] = np.linalg.solve(mat, atb[p])
 
@@ -147,7 +145,7 @@ def optimize_nnls(
             mat = numba_ix(ata, pidx[p], pidx[p])
             if is_singular(mat) and allow_singularity:
                 x[:] = np.nan
-                return None
+                return
 
             s[p] = np.linalg.solve(mat, atb[p])
             s[~p] = 0
@@ -156,4 +154,4 @@ def optimize_nnls(
         w[:] = atb - ata @ x
 
         if iter == maxiter:
-            return None
+            return

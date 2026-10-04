@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 from numba import guvectorize
 
-from ..utils import numba_defaults_kwargs as nb_kwargs
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 # wrapper for numpy.where following gufunc protocol
@@ -49,6 +49,6 @@ def where(condition, a, b, out):
             - a_or_b
         a_or_b: "where(condition, a, b)"
         a_or_b: "a if condition else b"
-    """
 
+    """
     out[:] = np.where(condition, a, b)

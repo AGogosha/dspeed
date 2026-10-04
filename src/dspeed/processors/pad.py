@@ -5,9 +5,9 @@ from __future__ import annotations
 import numpy as np
 from numba import guvectorize
 
-from ..errors import DSPFatal
-from ..utils import numba_defaults_kwargs as nb_kwargs
-from .utils import contains_nan
+from dspeed.errors import DSPFatal
+from dspeed.processors.utils import contains_nan
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 @guvectorize(
@@ -61,6 +61,7 @@ def pad(
             - vec_in[0]
             - vec_in[-1]
             - aoa_out(shape=100)
+
     """
     w_out[:] = np.nan
 

@@ -5,9 +5,9 @@ from __future__ import annotations
 import numpy as np
 from numba import guvectorize
 
-from ..errors import DSPFatal
-from ..utils import numba_defaults_kwargs as nb_kwargs
-from .utils import contains_nan
+from dspeed.errors import DSPFatal
+from dspeed.processors.utils import contains_nan
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 @guvectorize(
@@ -45,6 +45,7 @@ def trap_filter(w_in: np.ndarray, rise: int, flat: int, w_out: np.ndarray) -> No
             - "10*us"
             - "3*us"
             - wf_tf
+
     """
     w_out[:] = np.nan
 
@@ -113,6 +114,7 @@ def trap_norm(w_in: np.ndarray, rise: int, flat: int, w_out: np.ndarray) -> None
             - "10*us"
             - "3*us"
             - wf_tf
+
     """
     w_out[:] = np.nan
 
@@ -191,6 +193,7 @@ def asym_trap_filter(
             - "64*ns"
             - "2*us"
             - wf_af
+
     """
     w_out[:] = np.nan
 
@@ -271,6 +274,7 @@ def trap_pickoff(
             - 0
             - tp_0
             - ct_corr
+
     """
     a_out[0] = np.nan
 

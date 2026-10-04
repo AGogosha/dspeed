@@ -5,9 +5,9 @@ from __future__ import annotations
 import numpy as np
 from numba import guvectorize
 
-from ..errors import DSPFatal
-from ..utils import numba_defaults_kwargs as nb_kwargs
-from .utils import contains_nan
+from dspeed.errors import DSPFatal
+from dspeed.processors.utils import contains_nan
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 @guvectorize(
@@ -38,13 +38,14 @@ def presum(w_in: np.ndarray, do_norm: int, ps_fact: int, w_out: np.ndarray) -> N
         the presum factor/rate, determined by `len(w_in) // len(w_out)`
     w_out
         the output waveform.
+
     """
     w_out[:] = np.nan
     ps_fact[0] = np.nan
 
     if contains_nan(w_in):
         return
-    if do_norm not in [int(0), int(1)]:
+    if do_norm not in [0, 1]:
         raise DSPFatal("do_norm type not found.")
 
     ps_fact[0] = int(len(w_in) // len(w_out))

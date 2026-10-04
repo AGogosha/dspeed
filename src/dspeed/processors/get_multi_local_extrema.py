@@ -5,9 +5,9 @@ from __future__ import annotations
 import numpy as np
 from numba import guvectorize
 
-from ..errors import DSPFatal
-from ..utils import numba_defaults_kwargs as nb_kwargs
-from .utils import contains_nan
+from dspeed.errors import DSPFatal
+from dspeed.processors.utils import contains_nan
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 @guvectorize(
@@ -95,6 +95,7 @@ def get_multi_local_extrema(
           - ns
           - none
           - none
+
     """
     # prepare output
     vt_max_out[:] = np.nan
@@ -146,25 +147,24 @@ def get_multi_local_extrema(
                 # declare the previous one a maximum, then set this as the new "min"
                 if (
                     (w_in[i] < w_in[imax] - a_delta_max_in)
-                    and (int(n_max_left_counter) < int(len(left_vt_max)))
+                    and (int(n_max_left_counter) < len(left_vt_max))
                     and (w_in[imax] > a_abs_max_in)
                 ):
                     left_vt_max[int(n_max_left_counter)] = imax
                     n_max_left_counter += 1
                     imin = i
                     find_max = False
-            else:
-                # if the sample is more than the current min by more than a_delta_in,
-                # declare the previous one a minimum, then set this as the new "max"
-                if (
-                    (w_in[i] > w_in[imin] + a_delta_min_in)
-                    and (int(n_min_left_counter) < int(len(left_vt_min)))
-                    and (w_in[imin] < a_abs_min_in)
-                ):
-                    left_vt_min[int(n_min_left_counter)] = imin
-                    n_min_left_counter += 1
-                    imax = i
-                    find_max = True
+            # if the sample is more than the current min by more than a_delta_in,
+            # declare the previous one a minimum, then set this as the new "max"
+            elif (
+                (w_in[i] > w_in[imin] + a_delta_min_in)
+                and (int(n_min_left_counter) < len(left_vt_min))
+                and (w_in[imin] < a_abs_min_in)
+            ):
+                left_vt_min[int(n_min_left_counter)] = imin
+                n_min_left_counter += 1
+                imax = i
+                find_max = True
 
     # right to left search
     if search_direction > 0:
@@ -180,25 +180,24 @@ def get_multi_local_extrema(
                 # declare the previous one a maximum, then set this as the new "min"
                 if (
                     w_in[i] < w_in[imax] - a_delta_max_in
-                    and int(n_max_right_counter) < int(len(right_vt_max))
+                    and int(n_max_right_counter) < len(right_vt_max)
                     and w_in[imax] > a_abs_max_in
                 ):
                     right_vt_max[int(n_max_right_counter)] = imax
                     n_max_right_counter += 1
                     imin = i
                     find_max = False
-            else:
-                # if the sample is more than the current min by more than a_delta_in,
-                # declare the previous one a minimum, then set this as the new "max"
-                if (
-                    w_in[i] > w_in[imin] + a_delta_min_in
-                    and int(n_min_right_counter) < int(len(right_vt_min))
-                    and w_in[imin] < a_abs_min_in
-                ):
-                    right_vt_min[int(n_min_right_counter)] = imin
-                    n_min_right_counter += 1
-                    imax = i
-                    find_max = True
+            # if the sample is more than the current min by more than a_delta_in,
+            # declare the previous one a minimum, then set this as the new "max"
+            elif (
+                w_in[i] > w_in[imin] + a_delta_min_in
+                and int(n_min_right_counter) < len(right_vt_min)
+                and w_in[imin] < a_abs_min_in
+            ):
+                right_vt_min[int(n_min_right_counter)] = imin
+                n_min_right_counter += 1
+                imax = i
+                find_max = True
 
     # set output
     # left search

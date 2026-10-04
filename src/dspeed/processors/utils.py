@@ -1,12 +1,11 @@
-"""
-util functions for use by other processors. To call functions from inside
+"""util functions for use by other processors. To call functions from inside
 guvectorized functions, these will typically be jit and njit functions!
 """
 
 import numba
 import numpy as np
 
-from ..utils import numba_defaults_kwargs as nb_kwargs
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 # filter out default kwargs that don't work in jit/njit
 nb_kwargs_util = {k: v for k, v in nb_kwargs.items() if k not in {"target"}}

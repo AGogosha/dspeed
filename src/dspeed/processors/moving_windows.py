@@ -5,13 +5,16 @@ from __future__ import annotations
 import numpy as np
 from numba import guvectorize
 
-from ..errors import DSPFatal
-from ..utils import numba_defaults_kwargs as nb_kwargs
-from .utils import contains_nan
+from dspeed.errors import DSPFatal
+from dspeed.processors.utils import contains_nan
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 @guvectorize(
-    ["void(float32[:], float32, float32[:])", "void(float64[:], float64, float64[:])"],
+    [
+        "void(float32[:], float32, float32[:])",
+        "void(float64[:], float64, float64[:])",
+    ],
     "(n),()->(n)",
     **nb_kwargs,
 )
@@ -43,8 +46,8 @@ def moving_window_left(w_in: np.ndarray, length: float, w_out: np.ndarray) -> No
             - wf_pz
             - "96*ns"
             - wf_mw
-    """
 
+    """
     w_out[:] = np.nan
 
     if contains_nan(w_in):
@@ -63,7 +66,10 @@ def moving_window_left(w_in: np.ndarray, length: float, w_out: np.ndarray) -> No
 
 
 @guvectorize(
-    ["void(float32[:], float32, float32[:])", "void(float64[:], float64, float64[:])"],
+    [
+        "void(float32[:], float32, float32[:])",
+        "void(float64[:], float64, float64[:])",
+    ],
     "(n),()->(n)",
     **nb_kwargs,
 )
@@ -91,8 +97,8 @@ def moving_window_right(w_in: np.ndarray, length: float, w_out: np.ndarray) -> N
             - wf_pz
             - "96*ns"
             - wf_mw
-    """
 
+    """
     w_out[:] = np.nan
 
     if contains_nan(w_in):
@@ -124,7 +130,11 @@ def moving_window_right(w_in: np.ndarray, length: float, w_out: np.ndarray) -> N
     **nb_kwargs,
 )
 def moving_window_multi(
-    w_in: np.ndarray, length: float, num_mw: int, mw_type: int, w_out: np.ndarray
+    w_in: np.ndarray,
+    length: float,
+    num_mw: int,
+    mw_type: int,
+    w_out: np.ndarray,
 ) -> None:
     """Apply a series of moving-average windows to the waveform, alternating
     its application between the left and the right.
@@ -159,6 +169,7 @@ def moving_window_multi(
             - 0
             - curr_av
           unit: ADC/sample
+
     """
     w_out[:] = np.nan
 
@@ -205,7 +216,10 @@ def moving_window_multi(
 
 
 @guvectorize(
-    ["void(float32[:], float32, float32[:])", "void(float64[:], float64, float64[:])"],
+    [
+        "void(float32[:], float32, float32[:])",
+        "void(float64[:], float64, float64[:])",
+    ],
     "(n),(),(m)",
     **nb_kwargs,
 )
@@ -234,8 +248,8 @@ def avg_current(w_in: np.ndarray, length: float, w_out: np.ndarray) -> None:
             - 1
             - "curr(len(wf_pz)-1, f)"
           unit: ADC/sample
-    """
 
+    """
     w_out[:] = np.nan
 
     if contains_nan(w_in):

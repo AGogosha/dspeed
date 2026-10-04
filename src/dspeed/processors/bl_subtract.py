@@ -5,12 +5,15 @@ from __future__ import annotations
 import numpy as np
 from numba import guvectorize
 
-from ..utils import numba_defaults_kwargs as nb_kwargs
-from .utils import contains_nan
+from dspeed.processors.utils import contains_nan
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 @guvectorize(
-    ["void(float32[:], float32, float32[:])", "void(float64[:], float64, float64[:])"],
+    [
+        "void(float32[:], float32, float32[:])",
+        "void(float64[:], float64, float64[:])",
+    ],
     "(n),()->(n)",
     **nb_kwargs,
 )
@@ -38,6 +41,7 @@ def bl_subtract(w_in: np.ndarray, a_baseline: float, w_out: np.ndarray) -> None:
             - waveform
             - baseline
             - wf_bl
+
     """
     w_out[:] = np.nan
 

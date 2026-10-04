@@ -7,13 +7,16 @@ from math import ceil, floor
 import numpy as np
 from numba import guvectorize
 
-from ..errors import DSPFatal
-from ..utils import numba_defaults_kwargs as nb_kwargs
-from .utils import contains_nan
+from dspeed.errors import DSPFatal
+from dspeed.processors.utils import contains_nan
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 @guvectorize(
-    ["void(float32[:], float32, float32[:])", "void(float64[:], float64, float64[:])"],
+    [
+        "void(float32[:], float32, float32[:])",
+        "void(float64[:], float64, float64[:])",
+    ],
     "(n),(),(m)",
     **nb_kwargs,
 )
@@ -32,8 +35,8 @@ def upsampler(w_in: np.ndarray, upsample: float, w_out: np.ndarray) -> None:
         number of samples to increase each sample to.
     w_out
         output array for upsampled waveform.
-    """
 
+    """
     w_out[:] = np.nan
 
     if contains_nan(w_in):
@@ -42,16 +45,19 @@ def upsampler(w_in: np.ndarray, upsample: float, w_out: np.ndarray) -> None:
     if not (upsample > 0):
         raise DSPFatal("Upsample must be greater than 0")
 
-    for t_in in range(0, len(w_in)):
+    for t_in in range(len(w_in)):
         t_out = int(t_in * upsample - np.floor(upsample / 2))
-        for _ in range(0, int(upsample)):
+        for _ in range(int(upsample)):
             if (t_out >= 0) & (t_out < len(w_out)):
                 w_out[t_out] = w_in[t_in]
             t_out += 1
 
 
 @guvectorize(
-    ["void(float32[:], char, float32[:])", "void(float64[:], char, float64[:])"],
+    [
+        "void(float32[:], char, float32[:])",
+        "void(float64[:], char, float64[:])",
+    ],
     "(n),(),(m)",
     **nb_kwargs,
 )
@@ -101,8 +107,8 @@ def interpolating_upsampler(
             - wf
             - "'s'"
             - "wf_up(len(wf)*10, period=wf.period/10)"
-    """
 
+    """
     w_out[:] = np.nan
 
     if contains_nan(w_in):

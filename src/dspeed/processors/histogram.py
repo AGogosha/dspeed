@@ -5,9 +5,9 @@ from __future__ import annotations
 import numpy as np
 from numba import guvectorize
 
-from ..errors import DSPFatal
-from ..utils import numba_defaults_kwargs as nb_kwargs
-from .utils import contains_nan
+from dspeed.errors import DSPFatal
+from dspeed.processors.utils import contains_nan
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 # Note: the maximum value is not added to the histogram
@@ -57,8 +57,8 @@ def histogram(
     See Also
     --------
     .histogram_stats
-    """
 
+    """
     if len(weights_out) + 1 != len(borders_out):
         raise DSPFatal("length borders_out must be exactly 1 + length of weights_out")
 
@@ -146,11 +146,12 @@ def histogram_around_mode(
           unit:
             - none
             - ADC
+
     See Also
     --------
     .histogram
-    """
 
+    """
     if len(weights_out) + 1 != len(borders_out):
         raise DSPFatal("length borders_out must be exactly 1 + length of weights_out")
 
@@ -180,7 +181,7 @@ def histogram_around_mode(
             center = wf_min
         else:
             # make the histogram
-            for i in range(0, len(w_in)):
+            for i in range(len(w_in)):
                 if w_in[i] == wf_max:
                     continue
                 k = int(np.floor((w_in[i] - borders_out[0]) / delta))
@@ -199,7 +200,7 @@ def histogram_around_mode(
     # create the bin borders
     borders_out[:] = hist_min + bin_width * np.arange(n_bins + 1)
     # make the histogram
-    for i in range(0, len(w_in)):
+    for i in range(len(w_in)):
         k = int(np.floor((w_in[i] - borders_out[0]) / bin_width))
         if 0 <= k < n_bins:
             weights_out[k] += 1

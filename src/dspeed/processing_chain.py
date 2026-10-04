@@ -1,5 +1,4 @@
-"""
-This module provides routines for setting up and running signal processing
+"""This module provides routines for setting up and running signal processing
 chains on waveform data.
 """
 
@@ -27,10 +26,10 @@ from numba import jit
 from pint import Quantity, Unit
 from yaml import safe_load
 
-from . import processors
-from .errors import DSPFatal, ProcessingChainError
-from .units import unit_registry as ureg
-from .utils import GUFuncWrapper, ProcChainVarBase
+from dspeed import processors
+from dspeed.errors import DSPFatal, ProcessingChainError
+from dspeed.units import unit_registry as ureg
+from dspeed.utils import GUFuncWrapper, ProcChainVarBase
 
 log = logging.getLogger("dspeed")
 
@@ -132,8 +131,7 @@ class CoordinateGrid:
 
         if isinstance(self.offset, ProcChainVar):
             return self.offset.get_buffer(CoordinateGrid(unit))
-        else:
-            return float(self.offset / unit)
+        return float(self.offset / unit)
 
     def __str__(self) -> str:
         offset = (
@@ -141,7 +139,7 @@ class CoordinateGrid:
             if isinstance(self.offset, ProcChainVar)
             else str(self.offset)
         )
-        return f"({str(self.period)},{offset})"
+        return f"({self.period!s},{offset})"
 
 
 class ProcChainVar(ProcChainVarBase):
@@ -164,8 +162,7 @@ class ProcChainVar(ProcChainVarBase):
         vector_len: str | ProcChainVar = None,
         is_const: bool = False,
     ) -> None:
-        """
-        Parameters
+        """Parameters
         ----------
         proc_chain
             :class:`ProcessingChain` that contains this variable.
@@ -191,6 +188,7 @@ class ProcChainVar(ProcChainVarBase):
             If ``True``, variable is a constant. Variable will be set before
             executing, and will not be recomputed. Does not have outer
             dimension of size _block_width
+
         """
         assert isinstance(proc_chain, ProcessingChain) and isinstance(name, str)
         self.proc_chain = proc_chain
@@ -293,9 +291,8 @@ class ProcChainVar(ProcChainVarBase):
             if not (isinstance(unit, CoordinateGrid) or is_in_pint(unit)):
                 # buffer cannot be converted so return
                 return self._buffer
-            else:
-                # buffer can be converted, so make it a list of buffers
-                self._buffer = [(self._buffer, unit)]
+            # buffer can be converted, so make it a list of buffers
+            self._buffer = [(self._buffer, unit)]
 
         if not isinstance(unit, CoordinateGrid) and not is_in_pint(unit):
             return self._buffer[0][0]
@@ -404,14 +401,14 @@ class ProcessingChain:
     """
 
     def __init__(self, block_width: int = 8, buffer_len: int = None) -> None:
-        """
-        Parameters
+        """Parameters
         ----------
         block_width
             number of entries to simultaneously process.
         buffer_len
             length of input and output buffers. Should be a multiple of
             `block_width`.
+
         """
         # Dictionary from name to scratch data buffers as ProcChainVar
         self._vars_dict = {}
@@ -460,6 +457,7 @@ class ProcessingChain:
             `period` to be provided.
         is_coord
             if ``True``, transform value based on `period` and `offset`.
+
         """
         self._validate_name(name, raise_exception=True)
         if name in self._vars_dict:
@@ -504,8 +502,8 @@ class ProcessingChain:
             dtype of constant
         unit
             unit of constant
-        """
 
+        """
         param = self.get_variable(varname)
         if not param.is_const and param._buffer is not None:
             msg = f"{param} is already defined, cannot set_constant"
@@ -547,6 +545,7 @@ class ProcessingChain:
         -------
         buffer
             `buff` or newly allocated input buffer.
+
         """
         self._validate_name(varname, raise_exception=True)
         var = self.get_variable(varname, expr_only=True)
@@ -568,7 +567,7 @@ class ProcessingChain:
                 raise ProcessingChainError(
                     f"{varname} does not exist and no buffer was provided"
                 )
-            elif isinstance(var.grid, CoordinateGrid) and not var.is_coord:
+            if isinstance(var.grid, CoordinateGrid) and not var.is_coord:
                 if var.vector_len is None:
                     buff = lgdo.WaveformTable(
                         size=self._buffer_len, wf_len=var.shape[0], dtype=dtype
@@ -688,6 +687,7 @@ class ProcessingChain:
         Returns
         -------
         out
+
         """
         self._buffer_len = len(tb_in)
 
@@ -778,22 +778,19 @@ class ProcessingChain:
         if not get_names_only:
             if isinstance(stmt, ast.Expr):
                 return var
-            elif isinstance(stmt, ast.Assign) and len(stmt.targets) == 1:
+            if isinstance(stmt, ast.Assign) and len(stmt.targets) == 1:
                 if expr_only:
                     raise ProcessingChainError(
                         "kwarg assignment is not allowed in this context\n  " + expr
                     )
                 return {stmt.targets[0].id: var}
-            else:
-                raise ProcessingChainError("Could not parse expression:\n  " + expr)
-        else:
-            return names
+            raise ProcessingChainError("Could not parse expression:\n  " + expr)
+        return names
 
     def _parse_expr(
         self, node: Any, expr: str, dry_run: bool, var_name_list: list[str]
     ) -> Any:
-        """
-        Helper function for :meth:`ProcessingChain.get_variable` that
+        """Helper function for :meth:`ProcessingChain.get_variable` that
         recursively evaluates the AST tree. Whenever we encounter a variable
         name, add it to `var_name_list` (which should begin as an empty list).
         Only add new variables and processors to the chain if `dry_run` is
@@ -803,17 +800,17 @@ class ProcessingChain:
         if node is None:
             return None
 
-        elif isinstance(node, ast.List):
+        if isinstance(node, ast.List):
             npparr = np.array(
                 ast.literal_eval(expr[node.col_offset : node.end_col_offset])
             )
             return npparr
 
-        elif isinstance(node, ast.Constant):
+        if isinstance(node, ast.Constant):
             return node.value
 
         # look for name in variable dictionary
-        elif isinstance(node, ast.Name):
+        if isinstance(node, ast.Name):
             # check if it is a unit
             if node.id in ureg:
                 return ureg(node.id)
@@ -829,7 +826,7 @@ class ProcessingChain:
             return val
 
         # define binary operators (+,-,*,/)
-        elif isinstance(node, ast.BinOp):
+        if isinstance(node, ast.BinOp):
             lhs = self._parse_expr(node.left, expr, dry_run, var_name_list)
             rhs = self._parse_expr(node.right, expr, dry_run, var_name_list)
             if rhs is None or lhs is None:
@@ -891,7 +888,7 @@ class ProcessingChain:
             return out
 
         # define unary operators (-)
-        elif isinstance(node, ast.UnaryOp):
+        if isinstance(node, ast.UnaryOp):
             operand = self._parse_expr(node.operand, expr, dry_run, var_name_list)
             if operand is None:
                 return None
@@ -917,7 +914,7 @@ class ProcessingChain:
             return out
 
         # define comparison operators (<, <=, >, >=, ==, !=)
-        elif isinstance(node, ast.Compare):
+        if isinstance(node, ast.Compare):
             lhs = self._parse_expr(node.left, expr, dry_run, var_name_list)
             if len(node.comparators) != 1:
                 raise ProcessingChainError("Compound comparisons are not supported.")
@@ -944,7 +941,7 @@ class ProcessingChain:
             log.debug(f"added processor: {proc_man}")
             return out
 
-        elif isinstance(node, ast.Subscript):
+        if isinstance(node, ast.Subscript):
             val = self._parse_expr(node.value, expr, dry_run, var_name_list)
             if val is None:
                 return None
@@ -978,7 +975,7 @@ class ProcessingChain:
 
                 if isinstance(index, int):
                     out_buf = val.buffer[..., index]
-                    out_name = f"{str(val)}[{index}]"
+                    out_name = f"{val!s}[{index}]"
                     out_grid = val.grid if val.is_coord else None
 
                 # if index is a ProcChainVar, call get
@@ -987,7 +984,7 @@ class ProcessingChain:
 
                     out = ProcChainVar(
                         self,
-                        name=f"{str(val)}[{index}]",
+                        name=f"{val!s}[{index}]",
                         shape=(),
                         dtype=val.dtype,
                         grid=val.grid if val.is_coord else None,
@@ -1041,7 +1038,7 @@ class ProcessingChain:
                         start = sl.start * val.period
                         if isinstance(off, ProcChainVar):
                             new_off = ProcChainVar(
-                                self, name=f"({str(off)}+{str(start)})", is_coord=True
+                                self, name=f"({off!s}+{start!s})", is_coord=True
                             )
                             proc_man = ProcessorManager(
                                 self, np.add, [off, start, new_off]
@@ -1071,14 +1068,14 @@ class ProcessingChain:
             return out
 
         # a if condition else b
-        elif isinstance(node, ast.IfExp):
+        if isinstance(node, ast.IfExp):
             condition = self._parse_expr(node.test, expr, dry_run, var_name_list)
             a = self._parse_expr(node.body, expr, dry_run, var_name_list)
             b = self._parse_expr(node.orelse, expr, dry_run, var_name_list)
             return self._where(condition, a, b)
 
         # for name.attribute
-        elif isinstance(node, ast.Attribute):
+        if isinstance(node, ast.Attribute):
             # If we are looking for an attribute of a module (e.g. np.pi)
             module = expr[node.value.col_offset : node.value.end_col_offset]
             if module in self.module_list:
@@ -1098,7 +1095,7 @@ class ProcessingChain:
             return getattr(val, node.attr)
 
         # for func(args, kwargs)
-        elif isinstance(node, ast.Call):
+        if isinstance(node, ast.Call):
             func = self.func_list.get(node.func.id, None)
             args = [
                 self._parse_expr(arg, expr, dry_run, var_name_list) for arg in node.args
@@ -1109,23 +1106,21 @@ class ProcessingChain:
             }
             if func is not None:
                 return func(self, *args, **kwargs) if not dry_run else None
-            elif self._validate_name(node.func.id):
+            if self._validate_name(node.func.id):
                 var_name = node.func.id
                 var_name_list.append(var_name)
                 if var_name in self._vars_dict:
                     var = self._vars_dict[var_name]
                     var.update_auto(*args, **kwargs)
                     return self._vars_dict[var_name]
-                elif not dry_run:
+                if not dry_run:
                     return self.add_variable(var_name, *args, **kwargs)
-                else:
-                    return None
+                return None
 
-            else:
-                raise ProcessingChainError(
-                    f"do not recognize call to {func} with arguments "
-                    f"{[str(arg.__dict__) for arg in node.args]}"
-                )
+            raise ProcessingChainError(
+                f"do not recognize call to {func} with arguments "
+                f"{[str(arg.__dict__) for arg in node.args]}"
+            )
 
         raise ProcessingChainError(f"cannot parse AST nodes of type {node.__dict__}")
 
@@ -1224,56 +1219,31 @@ class ProcessingChain:
         if not isinstance(var, ProcChainVar):
             if isinstance(var, Quantity) and isinstance(to_nearest, Quantity):
                 return fun(float(var / to_nearest.u), to_nearest.m) * to_nearest.u
+            return fun(var, to_nearest)
+        name = f"{mode}({var}, {to_nearest})"
+        dtype = np.dtype(dtype) if dtype is not None else var.dtype
+        if var.is_coord:
+            if isinstance(to_nearest, Real):
+                grid = CoordinateGrid(var.grid.period * to_nearest, var.grid.offset)
+            elif isinstance(to_nearest, (Unit, Quantity)):
+                grid = CoordinateGrid(to_nearest, var.grid.offset)
             else:
-                return fun(var, to_nearest)
+                grid = to_nearest
+
+            out = ProcChainVar(
+                self,
+                name,
+                var.shape,
+                dtype,
+                grid,
+                var.unit,
+                var.is_coord,
+            )
+            conversion_manager = UnitConversionManager(var, grid, mode=mode)
+            out._buffer = conversion_manager.out_buffer
+            self._proc_managers.append(conversion_manager)
+            log.debug(f"added conversion: {conversion_manager}")
         else:
-            name = f"{mode}({var}, {to_nearest})"
-            dtype = np.dtype(dtype) if dtype is not None else var.dtype
-            if var.is_coord:
-                if isinstance(to_nearest, Real):
-                    grid = CoordinateGrid(var.grid.period * to_nearest, var.grid.offset)
-                elif isinstance(to_nearest, (Unit, Quantity)):
-                    grid = CoordinateGrid(to_nearest, var.grid.offset)
-                else:
-                    grid = to_nearest
-
-                out = ProcChainVar(
-                    self,
-                    name,
-                    var.shape,
-                    dtype,
-                    grid,
-                    var.unit,
-                    var.is_coord,
-                )
-                conversion_manager = UnitConversionManager(var, grid, mode=mode)
-                out._buffer = conversion_manager.out_buffer
-                self._proc_managers.append(conversion_manager)
-                log.debug(f"added conversion: {conversion_manager}")
-            else:
-                out = ProcChainVar(
-                    self,
-                    name,
-                    var.shape,
-                    dtype,
-                    var.grid,
-                    var.unit,
-                    var.is_coord,
-                )
-
-                self.add_processor(fun, var, to_nearest, out)
-
-            return out
-
-    # type cast variable
-    def _astype(self, var: ProcChainVar, dtype: str) -> ProcChainVar:
-        dtype = np.dtype(dtype)
-        if var is None:
-            return None
-        if not isinstance(var, ProcChainVar):
-            raise ProcessingChainError(f"cannot call astype() on {var}")
-        else:
-            name = f"{var}.astype(`{dtype.char}`)"
             out = ProcChainVar(
                 self,
                 name,
@@ -1283,63 +1253,83 @@ class ProcessingChain:
                 var.unit,
                 var.is_coord,
             )
-            proc_man = ProcessorManager(
-                self,
-                GUFuncWrapper(
-                    lambda a_in, a_out: np.copyto(a_out, a_in, casting="unsafe"),
-                    name="astype",
-                    signature="()->()",
-                    types=f"{var.dtype.char}->{dtype.char}",
-                    vectorized=True,
-                    copy_out=False,
-                ),
-                [var, out],
-            )
-            self._proc_managers.append(proc_man)
-            log.debug(f"added processor: {proc_man}")
-            return out
+
+            self.add_processor(fun, var, to_nearest, out)
+
+        return out
+
+    # type cast variable
+    def _astype(self, var: ProcChainVar, dtype: str) -> ProcChainVar:
+        dtype = np.dtype(dtype)
+        if var is None:
+            return None
+        if not isinstance(var, ProcChainVar):
+            raise ProcessingChainError(f"cannot call astype() on {var}")
+        name = f"{var}.astype(`{dtype.char}`)"
+        out = ProcChainVar(
+            self,
+            name,
+            var.shape,
+            dtype,
+            var.grid,
+            var.unit,
+            var.is_coord,
+        )
+        proc_man = ProcessorManager(
+            self,
+            GUFuncWrapper(
+                lambda a_in, a_out: np.copyto(a_out, a_in, casting="unsafe"),
+                name="astype",
+                signature="()->()",
+                types=f"{var.dtype.char}->{dtype.char}",
+                vectorized=True,
+                copy_out=False,
+            ),
+            [var, out],
+        )
+        self._proc_managers.append(proc_man)
+        log.debug(f"added processor: {proc_man}")
+        return out
 
     def _isnan(self, var: ProcChainVar | Real | None):
         """Is value NaN"""
         if var is None:
             return None
-        elif not isinstance(var, ProcChainVar):
+        if not isinstance(var, ProcChainVar):
             return np.isnan(var)
-        else:
-            out = ProcChainVar(
-                self,
-                f"isnan({var})",
-                var.shape,
-                "bool",
-                var.grid,
-                var.unit,
-                var.is_coord,
-            )
-            proc_man = ProcessorManager(self, np.isnan, [var, out])
-            self._proc_managers.append(proc_man)
-            log.debug(f"added processor: {proc_man}")
-            return out
+        out = ProcChainVar(
+            self,
+            f"isnan({var})",
+            var.shape,
+            "bool",
+            var.grid,
+            var.unit,
+            var.is_coord,
+        )
+        proc_man = ProcessorManager(self, np.isnan, [var, out])
+        self._proc_managers.append(proc_man)
+        log.debug(f"added processor: {proc_man}")
+        return out
 
     def _isfinite(self, var: ProcChainVar | Real | None):
         """Is value finite (i.e. not NaN or infinite)"""
         if var is None:
             return None
-        elif not isinstance(var, ProcChainVar):
+        if not isinstance(var, ProcChainVar):
             return np.isfinite(var)
-        else:
-            out = ProcChainVar(
-                self,
-                f"isfinite({var})",
-                var.shape,
-                "bool",
-                var.grid,
-                var.unit,
-                var.is_coord,
-            )
-            proc_man = ProcessorManager(self, np.isfinite, [var, out])
-            self._proc_managers.append(proc_man)
-            log.debug(f"added processor: {proc_man}")
-            return out
+        out = ProcChainVar(
+            self,
+            f"isfinite({var})",
+            var.shape,
+            "bool",
+            var.grid,
+            var.unit,
+            var.is_coord,
+        )
+        proc_man = ProcessorManager(self, np.isfinite, [var, out])
+        self._proc_managers.append(proc_man)
+        log.debug(f"added processor: {proc_man}")
+        return out
 
     # choose a or b
     def _where(
@@ -1350,8 +1340,8 @@ class ProcessingChain:
         dtype: str = auto,
     ) -> ProcChainVar:
         """Select value from ``a`` or ``b`` depending on if ``condition`` is ``True`` or ``False``. Used
-        for the ``where`` function or ``a if b else c`` pattern."""
-
+        for the ``where`` function or ``a if b else c`` pattern.
+        """
         if condition is None:
             return None
 
@@ -1442,8 +1432,7 @@ class ProcessingChain:
         return out
 
     def _loadlh5(self, path_to_file, path_in_file: str) -> np.array:
-        """
-        Load data from an LH5 file.
+        """Load data from an LH5 file.
 
         Args:
             path_to_file (str): The path to the LH5 file.
@@ -1451,8 +1440,8 @@ class ProcessingChain:
 
         Returns:
             list: The loaded data.
-        """
 
+        """
         import lh5
 
         try:
@@ -1550,7 +1539,7 @@ class ProcessorManager:
             raise ProcessingChainError(
                 f"expected {len(dims_list)} arguments from signature "
                 f"{self.signature}; found "
-                f"{len(params)+len(kw_params)}: ({', '.join([str(par) for par in params])})"
+                f"{len(params) + len(kw_params)}: ({', '.join([str(par) for par in params])})"
             )
 
         dims_dict = {}  # map from dim name -> DimInfo
@@ -1595,7 +1584,9 @@ class ProcessorManager:
                 ad = (
                     arr_dims[-i - 1]
                     if i < len(arr_dims)
-                    else self.proc_chain._block_width if i == len(arr_dims) else None
+                    else self.proc_chain._block_width
+                    if i == len(arr_dims)
+                    else None
                 )
 
                 if isinstance(fd, str):
@@ -1637,7 +1628,7 @@ class ProcessorManager:
                             f"failed to broadcast array dimensions for "
                             f"{func.__name__}. Input arrays do not have "
                             f"consistent outer dimensions.  Require: "
-                            f"{tuple(dim.length for dim in outerdims+fun_dims)}; "
+                            f"{tuple(dim.length for dim in outerdims + fun_dims)}; "
                             f"found {tuple(arr_dims)} for {param}"
                         )
                 elif not fd.grid:
@@ -1797,7 +1788,7 @@ class ProcessorManager:
             + "("
             + ", ".join(
                 [str(par) for par in self.params]
-                + [f"{k}={str(v)}" for k, v in self.kw_params.items()]
+                + [f"{k}={v!s}" for k, v in self.kw_params.items()]
             )
             + ")"
         )
@@ -1920,22 +1911,18 @@ class IOManager(metaclass=ABCMeta):
     @abstractmethod
     def set_buffer(self, io_buf) -> None:
         """Set IO buffer to read from/write to"""
-        pass
 
     @abstractmethod
     def read(self, start: int, end: int) -> None:
         """Read from IO buffer into variable buffer"""
-        pass
 
     @abstractmethod
     def write(self, start: int, end: int) -> None:
         """Write from variable buffer to IO buffer"""
-        pass
 
     @abstractmethod
     def __str__(self) -> str:
         """Description of IO manager"""
-        pass
 
 
 # Ok, this one's not LGDO
@@ -1966,12 +1953,16 @@ class NumpyIOManager(IOManager):
 
     def read(self, start: int, end: int) -> None:
         np.copyto(
-            self.raw_var[0 : end - start, ...], self.io_buf[start:end, ...], "unsafe"
+            self.raw_var[0 : end - start, ...],
+            self.io_buf[start:end, ...],
+            "unsafe",
         )
 
     def write(self, start: int, end: int) -> None:
         np.copyto(
-            self.io_buf[start:end, ...], self.raw_var[0 : end - start, ...], "unsafe"
+            self.io_buf[start:end, ...],
+            self.raw_var[0 : end - start, ...],
+            "unsafe",
         )
 
     def __str__(self) -> str:
@@ -2032,7 +2023,7 @@ class LGDOArrayIOManager(IOManager):
             raise ProcessingChainError(
                 f"LGDO object "
                 f"{io_array.form_datatype()} is "
-                f"incompatible with {str(self.var)}"
+                f"incompatible with {self.var!s}"
             )
 
         self.io_array = io_array
@@ -2105,7 +2096,7 @@ class LGDOArrayOfEqualSizedArraysIOManager(IOManager):
             raise ProcessingChainError(
                 f"LGDO object "
                 f"{io_array.form_datatype()} is "
-                f"incompatible with {str(self.var)}"
+                f"incompatible with {self.var!s}"
             )
 
         self.io_array = io_array
@@ -2190,13 +2181,13 @@ class LGDOVectorOfVectorsIOManager(IOManager):
             raise ProcessingChainError(
                 f"LGDO object "
                 f"{io_vov.flattened_data.form_datatype()} is "
-                f"incompatible with {str(self.var)}"
+                f"incompatible with {self.var!s}"
             )
 
         self.io_vov = io_vov
 
     @jit
-    def _vov2nda(flat_arr_in, cl_in, start_idx_in, l_out, aoa_out):  # noqa: N805
+    def _vov2nda(flat_arr_in, cl_in, start_idx_in, l_out, aoa_out):
         prev_cl = start_idx_in
         for i, cl in enumerate(cl_in):
             l_out[i] = cl - prev_cl
@@ -2448,6 +2439,7 @@ def build_processing_chain(
           This can be used to ensure only needed values are read in.
         - `tb_out` -- output :class:`~lgdo.table.Table` with size 0, with
           fields and attrs set up to contain outputs
+
     """
     db_parser = re.compile(r"(?![^\w_.])db\.[\w_.]+")
 
@@ -2605,10 +2597,12 @@ def build_processing_chain(
     processors.update(multi_out_procs)
 
     def resolve_dependencies(
-        par: str, resolved: list[str], leafs: list[str], unresolved: list[str] = None
+        par: str,
+        resolved: list[str],
+        leafs: list[str],
+        unresolved: list[str] = None,
     ) -> None:
-        """
-        Recursive function to crawl through the parameters/processors and get a
+        """Recursive function to crawl through the parameters/processors and get a
         sequence of unique parameters such that parameters always appear after
         their dependencies. For parameters that are not produced by the
         :class:`ProcessingChain` (i.e. input/db parameters), add them to the
@@ -2621,7 +2615,7 @@ def build_processing_chain(
 
         if par in resolved:
             return
-        elif par in unresolved:
+        if par in unresolved:
             raise ProcessingChainError(
                 f"Circular references detected for parameter '{par}'"
             )

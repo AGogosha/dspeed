@@ -152,8 +152,9 @@ class GUFuncWrapper:
         doc_string
             manually set doc string. If None, use docstring of fun if it
             exists. Else use this docstring.
+
         """
-        self.__name__ = name if name else fun.__name__
+        self.__name__ = name or fun.__name__
         self.ufunc = fun
         self.signature = signature
         if "->" in signature:
@@ -181,7 +182,6 @@ class GUFuncWrapper:
 
     def __call__(self, *args):
         """Call wrapped function with "in place" outputs"""
-
         assert len(args) == self.nargs
 
         if self.vectorized and self.copy_out and self.nout > 0:
@@ -251,20 +251,21 @@ def dspeed_guvectorize(*args, **kwargs):
 
 
 def getenv_bool(name: str, default: bool = False) -> bool:
-    """Get environment value as a boolean, returning True for 1, t and true
+    """
+    Get environment value as a boolean, returning True for 1, t and true
     (caps-insensitive), and False for any other value and default if undefined.
     """
     val = os.getenv(name)
     if not val:
         return default
-    elif val.lower() in ("1", "t", "true"):
+    if val.lower() in ("1", "t", "true"):
         return True
-    else:
-        return False
+    return False
 
 
 class NumbaDefaults(MutableMapping):
-    """Bare-bones class to store some Numba default options. Defaults values
+    """
+    Bare-bones class to store some Numba default options. Defaults values
     are set from environment variables
 
     Examples
@@ -289,6 +290,7 @@ class NumbaDefaults(MutableMapping):
     >>> numba_defaults.cache = False
     >>> numba_defaults.boundscheck = True
     >>> build_dsp(...) # if not explicit, processors imports happen here
+
     """
 
     def __init__(self) -> None:
@@ -328,10 +330,9 @@ numba_defaults_kwargs = numba_defaults
 
 
 class ProcChainVarBase(metaclass=ABCMeta):
-    r"""Base class.
+    r"""
+    Base class.
 
     :class:`ProcChainVar` implements this class. This base class is used
     by processors that use ProcChainVar in their constructors.
     """
-
-    pass

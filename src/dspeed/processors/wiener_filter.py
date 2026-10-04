@@ -6,8 +6,8 @@ import lh5
 import numpy as np
 from numba import guvectorize
 
-from ..errors import DSPFatal
-from ..utils import numba_defaults_kwargs as nb_kwargs
+from dspeed.errors import DSPFatal
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 def wiener_filter(file_name_array: list[str]) -> np.ndarray:
@@ -43,8 +43,8 @@ def wiener_filter(file_name_array: list[str]) -> np.ndarray:
           unit: dB
           init_args:
             - /path/to/file/wiener.lh5
-    """
 
+    """
     sto = lh5.LH5Store()
 
     # Check that the file is valid and the data is in the correct format
@@ -117,7 +117,10 @@ def wiener_filter(file_name_array: list[str]) -> np.ndarray:
     # Create a factory function that performs the convolution with the wiener filter, the output is still in the frequency domain
 
     @guvectorize(
-        ["void(complex64[:], complex64[:])", "void(complex128[:], complex128[:])"],
+        [
+            "void(complex64[:], complex64[:])",
+            "void(complex128[:], complex128[:])",
+        ],
         "(n)->(n)",
         **nb_kwargs(
             cache=False,
@@ -125,13 +128,13 @@ def wiener_filter(file_name_array: list[str]) -> np.ndarray:
         ),
     )
     def wiener_out(fft_w_in: np.ndarray, fft_w_out: np.ndarray) -> None:
-        """
-        Parameters
+        """Parameters
         ----------
         fft_w_in
             the Fourier transformed input waveform.
         fft_w_out
             the filtered waveform, in the frequency domain.
+
         """
         fft_w_out[:] = np.nan
 

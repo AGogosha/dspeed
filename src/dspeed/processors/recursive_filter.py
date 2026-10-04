@@ -5,9 +5,9 @@ from __future__ import annotations
 import numpy as np
 from numba import guvectorize
 
-from ..errors import DSPFatal
-from ..utils import numba_defaults_kwargs as nb_kwargs
-from .utils import contains_nan
+from dspeed.errors import DSPFatal
+from dspeed.processors.utils import contains_nan
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 @guvectorize(
@@ -20,8 +20,7 @@ from .utils import contains_nan
     **nb_kwargs,
 )
 def recursive_filter(w_in, a, b, init_in, init_out, w_out):
-    r"""
-    Apply a recursive filter using ``a`` and ``b`` as the
+    r"""Apply a recursive filter using ``a`` and ``b`` as the
     feedforward and feedback coefficients, respectively:
 
     .. math::
@@ -52,8 +51,8 @@ def recursive_filter(w_in, a, b, init_in, init_out, w_out):
         initial value of w_out memory
     w_out
         the output waveform
-    """
 
+    """
     w_out[:] = np.nan
     if (
         contains_nan(w_in)

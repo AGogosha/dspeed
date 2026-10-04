@@ -7,12 +7,13 @@ import os
 
 from dbetto import Props
 
+from dspeed.utils import clean_numba_cache, precompile_numba
+
 from . import __version__, build_dsp, logging
-from .utils import clean_numba_cache, precompile_numba
 
 
 def dspeed_cli():
-    """dspeed's command line interface.
+    """Dspeed's command line interface.
 
     Defines the command line interface (CLI) of the package, which exposes some
     of the most used functions to the console.  This function is added to the
@@ -24,7 +25,6 @@ def dspeed_cli():
 
       $ dspeed --hep
     """
-
     parser = argparse.ArgumentParser(
         prog="dspeed",
         description="""Process LH5 raw files and produce a
@@ -192,8 +192,7 @@ def dspeed_cli():
 
 
 def dspeed_nbcache():
-    """dspeed's command line interface for managing the numba cache."""
-
+    """Dspeed's command line interface for managing the numba cache."""
     parser = argparse.ArgumentParser(
         prog="dspeed-nbcache",
         description="""Manage cached numba processors for dspeed. Can

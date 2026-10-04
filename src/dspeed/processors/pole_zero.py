@@ -5,10 +5,10 @@ from __future__ import annotations
 import numpy as np
 from numba import guvectorize, vectorize
 
-from ..errors import DSPFatal
-from ..processors import recursive_filter
-from ..utils import numba_defaults_kwargs as nb_kwargs
-from .utils import contains_nan
+from dspeed.errors import DSPFatal
+from dspeed.processors import recursive_filter
+from dspeed.processors.utils import contains_nan
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 @vectorize(
@@ -23,7 +23,10 @@ def rc_exp(tau):
 # Note: for historical reasons, this does not use the recursive_filter
 # This may change in the future
 @guvectorize(
-    ["void(float32[:], float32, float32[:])", "void(float64[:], float64, float64[:])"],
+    [
+        "void(float32[:], float32, float32[:])",
+        "void(float64[:], float64, float64[:])",
+    ],
     "(n),()->(n)",
     **nb_kwargs,
 )
@@ -52,6 +55,7 @@ def pole_zero(w_in: np.ndarray, t_tau: float, w_out: np.ndarray) -> None:
           - wf_bl
           - "400*us"
           - wf_pz
+
     """
     w_out[:] = np.nan
 
@@ -95,8 +99,7 @@ def double_pole_zero(
     frac: float,
     w_out: np.ndarray,
 ) -> np.ndarray:
-    r"""
-    Apply a double pole-zero cancellation using the provided time
+    r"""Apply a double pole-zero cancellation using the provided time
     constants to the waveform.
 
     Parameters
@@ -156,6 +159,7 @@ def double_pole_zero(
                            + abw_\text{in}[n-2] \\
                          & -(fb - fa - b - 1)w_\text{out}[n-1]
                            + (fb - fa - b)w_\text{out}[n-2]
+
     """
     w_out[:] = np.nan
 
@@ -200,7 +204,10 @@ def double_pole_zero(
 
 
 @guvectorize(
-    ["void(float32[:], float32, float32[:])", "void(float64[:], float64, float64[:])"],
+    [
+        "void(float32[:], float32, float32[:])",
+        "void(float64[:], float64, float64[:])",
+    ],
     "(n),()->(n)",
     **nb_kwargs,
     forceobj=True,
@@ -221,6 +228,7 @@ def convolve_exp(w_in: np.ndarray, tau: float, w_out: np.ndarray) -> None:
         decay time of exponential kernel
     w_out
         output waveform after convolution
+
     """
     recursive_filter(
         w_in,
@@ -262,6 +270,7 @@ def convolve_damped_oscillator(
         starting phase of oscillation
     w_out
         output waveform after convolution
+
     """
     rc = rc_exp(tau)
     recursive_filter(
@@ -298,8 +307,7 @@ def inject_damped_oscillation(
     frac: float,
     w_out: np.ndarray,
 ) -> None:
-    """
-    Inject a damped oscillation component/pole into the electronics response
+    """Inject a damped oscillation component/pole into the electronics response
 
     Parameters
     ----------
@@ -315,6 +323,7 @@ def inject_damped_oscillation(
         fraction of amplitude in injected pole
     w_out
         output waveform after injecting decay component
+
     """
     if not 0 <= frac <= 1:
         raise DSPFatal("frac must be between zero and one.")
@@ -335,7 +344,9 @@ def inject_damped_oscillation(
             axis=-1,
         ),  # a
         np.stack(
-            np.broadcast_arrays(1, -2 * rc * cw, rc * rc), dtype="float64", axis=-1
+            np.broadcast_arrays(1, -2 * rc * cw, rc * rc),
+            dtype="float64",
+            axis=-1,
         ),  # b
         w_in[..., 0],  # init_in
         0,  # init_out

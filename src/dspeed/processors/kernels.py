@@ -5,12 +5,15 @@ from __future__ import annotations
 import numpy as np
 from numba import guvectorize
 
-from ..errors import DSPFatal
-from ..utils import numba_defaults_kwargs as nb_kwargs
+from dspeed.errors import DSPFatal
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 @guvectorize(
-    ["void(float32, float32, float32[:])", "void(float64, float64, float64[:])"],
+    [
+        "void(float32, float32, float32[:])",
+        "void(float64, float64, float64[:])",
+    ],
     "(),(),(n)",
     **nb_kwargs(
         forceobj=True,
@@ -45,6 +48,7 @@ def t0_filter(rise: int, fall: int, kernel: np.array) -> None:
           init_args:
             - "128*ns"
             - "2*us"
+
     """
     if rise < 0:
         raise DSPFatal("The length of the rise section must be positive")
@@ -89,6 +93,7 @@ def moving_slope(kernel):
           args:
             - 12
             - kern_slopes
+
     """
     length = len(kernel)
 
@@ -128,8 +133,8 @@ def step(weight_pos: int, kernel: np.array) -> None:
           args:
             - 16
             - kern_step
-    """
 
+    """
     x = np.arange(len(kernel))
     kernel[:] = np.piecewise(
         x,

@@ -18,8 +18,8 @@ from lgdo import LGDO, Struct, Table
 from tqdm.auto import tqdm
 from yaml import safe_load
 
-from .errors import DSPFatal, ProcessingChainError
-from .processing_chain import build_processing_chain
+from dspeed.errors import DSPFatal, ProcessingChainError
+from dspeed.processing_chain import build_processing_chain
 
 log = logging.getLogger("dspeed")
 
@@ -124,6 +124,7 @@ def build_dsp(
             }
 
         will process all channels beginning with 2, except for 2000000, with config3.
+
     """
     db_parser = re.compile(r"(?![^\w_.])db\.[\w_.]+")
     raw_store = lh5.LH5Store(keep_open=True)
@@ -281,7 +282,12 @@ def build_dsp(
             ]
         elif isinstance(config_inputs, Collection):
             inputs += [
-                (ci["file"], ci["group"], ci.get("prefix", ""), ci.get("suffix", ""))
+                (
+                    ci["file"],
+                    ci["group"],
+                    ci.get("prefix", ""),
+                    ci.get("suffix", ""),
+                )
                 for ci in config_inputs
             ]
 
@@ -407,7 +413,7 @@ def build_dsp(
                 proc_chain(tb_in, tb_out)
             except DSPFatal as e:
                 # Update the wf_range to reflect the file position
-                e.wf_range = f"{i_entry}-{i_entry+len(tb_in)}"
+                e.wf_range = f"{i_entry}-{i_entry + len(tb_in)}"
                 raise e
             processing_time += time.time() - processing_time_start
 

@@ -5,9 +5,9 @@ from __future__ import annotations
 import numpy as np
 from numba import guvectorize
 
-from ..errors import DSPFatal
-from ..utils import numba_defaults_kwargs as nb_kwargs
-from .utils import contains_nan
+from dspeed.errors import DSPFatal
+from dspeed.processors.utils import contains_nan
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 @guvectorize(
@@ -65,6 +65,7 @@ def fixed_time_pickoff(w_in: np.ndarray, t_in: float, mode_in: np.int8, a_out: f
             - "tp_0+10*us"
             - "'h'"
             - trapEftp
+
     """
     a_out[0] = np.nan
 
@@ -84,7 +85,7 @@ def fixed_time_pickoff(w_in: np.ndarray, t_in: float, mode_in: np.int8, a_out: f
 
     if chr(mode_in) == "i":  # Index
         raise DSPFatal("fixed_time_pickoff requires integer t_in when using mode 'i'")
-    elif chr(mode_in) == "n":  # Nearest-neighbor
+    if chr(mode_in) == "n":  # Nearest-neighbor
         a_out[0] = w_in[i_in] if t0 < 0.5 else w_in[i_in + 1]
     elif chr(mode_in) == "f":  # Floor
         a_out[0] = w_in[i_in]

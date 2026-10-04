@@ -5,9 +5,9 @@ from __future__ import annotations
 import numpy as np
 from numba import guvectorize
 
-from ..errors import DSPFatal
-from ..utils import numba_defaults_kwargs as nb_kwargs
-from .utils import contains_nan
+from dspeed.errors import DSPFatal
+from dspeed.processors.utils import contains_nan
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 @guvectorize(
@@ -19,7 +19,11 @@ from .utils import contains_nan
     **nb_kwargs,
 )
 def time_point_thresh(
-    w_in: np.ndarray, a_threshold: float, t_start: int, walk_forward: int, t_out: float
+    w_in: np.ndarray,
+    a_threshold: float,
+    t_start: int,
+    walk_forward: int,
+    t_out: float,
 ) -> None:
     """Find the index where the waveform value crosses the threshold, walking
     either forward or backward from the starting index. Find crossings where the
@@ -54,6 +58,7 @@ def time_point_thresh(
             - 0
             - tp_0
           unit: ns
+
     """
     t_out[0] = np.nan
 
@@ -166,6 +171,7 @@ def interpolated_time_point_thresh(
             - "'l'"
             - tp_0
           unit: ns
+
     """
     t_out[0] = np.nan
 
@@ -297,6 +303,7 @@ def multi_time_point_thresh(
             - "'l'"
             - tp_0
           unit: ns
+
     """
     t_out[:] = np.nan
 
@@ -335,9 +342,15 @@ def multi_time_point_thresh(
             while w_in[i_wf] <= a_threshold[idx] < w_in[i_wf + polarity]:
                 if mode_in == ord("i"):  # return index closest to start of search
                     t_out[idx] = i_wf
-                elif mode_in in (ord("a"), ord("f")):  # return index after crossing
+                elif mode_in in (
+                    ord("a"),
+                    ord("f"),
+                ):  # return index after crossing
                     t_out[idx] = i_wf if polarity < 0 else i_wf + 1
-                elif mode_in in (ord("b"), ord("c")):  # return index before crossing
+                elif mode_in in (
+                    ord("b"),
+                    ord("c"),
+                ):  # return index before crossing
                     t_out[idx] = i_wf if polarity > 0 else i_wf - 1
                 elif mode_in == ord("r"):  # round; return closest index
                     if (
@@ -374,9 +387,15 @@ def multi_time_point_thresh(
             while w_in[i_wf] <= a_threshold[idx] < w_in[i_wf + polarity]:
                 if mode_in == ord("i"):  # return index closest to start of search
                     t_out[idx] = i_wf
-                elif mode_in in (ord("a"), ord("f")):  # return index after crossing
+                elif mode_in in (
+                    ord("a"),
+                    ord("f"),
+                ):  # return index after crossing
                     t_out[idx] = i_wf if polarity < 0 else i_wf + 1
-                elif mode_in in (ord("b"), ord("c")):  # return index before crossing
+                elif mode_in in (
+                    ord("b"),
+                    ord("c"),
+                ):  # return index before crossing
                     t_out[idx] = i_wf if polarity > 0 else i_wf - 1
                 elif mode_in == ord("r"):  # round; return closest index
                     if (
@@ -420,8 +439,7 @@ def bi_level_zero_crossing_time_points(
     polarity_out: np.array,
     t_trig_times_out: np.array,
 ) -> None:
-    """
-    Find the indices where a waveform value crosses 0 after crossing the threshold and reaching the next threshold within some gate time.
+    """Find the indices where a waveform value crosses 0 after crossing the threshold and reaching the next threshold within some gate time.
     Works on positive and negative polarity waveforms.
     Useful for finding pileup events with the RC-CR^2 filter.
 
@@ -463,6 +481,7 @@ def bi_level_zero_crossing_time_points(
             - "polarity_out(20, vector_len=n_crossings)"
             - "trig_times_out(20, vector_len=n_crossings)"
           unit: ns
+
     """
     # prepare output
     t_trig_times_out[:] = np.nan

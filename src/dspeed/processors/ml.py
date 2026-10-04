@@ -1,5 +1,4 @@
-"""
-Module containing ml processors, the dsp config can be used to combine these into a neural
+"""Module containing ml processors, the dsp config can be used to combine these into a neural
 network a simple example would be:
 
 .. code-block:: yaml
@@ -37,7 +36,7 @@ from __future__ import annotations
 import numpy as np
 from numba import guvectorize
 
-from ..utils import numba_defaults_kwargs as nb_kwargs
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 @guvectorize(
@@ -90,7 +89,10 @@ def softmax(x_in: np.ndarray, x_out: np.ndarray) -> None:
     forceobj=True,
 )
 def dense_layer_no_bias(
-    x_in: np.ndarray, kernel: np.ndarray, activation_func: np.int8, x_out: np.ndarray
+    x_in: np.ndarray,
+    kernel: np.ndarray,
+    activation_func: np.int8,
+    x_out: np.ndarray,
 ) -> None:
     """Dense neural network layer without a bias term.
 
@@ -120,8 +122,8 @@ def dense_layer_no_bias(
             - db.kernel
             - "'s'"
             - layer_1
-    """
 
+    """
     x_out[:] = np.nan
 
     if np.isnan(x_in).any():
@@ -188,8 +190,8 @@ def dense_layer_with_bias(
             - db.bias
             - "'s'"
             - layer_1
-    """
 
+    """
     x_out[:] = np.nan
 
     if np.isnan(x_in).any():
@@ -221,8 +223,7 @@ def dense_layer_with_bias(
 def classification_layer_no_bias(
     x_in: np.ndarray, kernel: np.ndarray, activation_func: np.int8, x_out: float
 ) -> None:
-    """
-    This is the same as dense_layer_no_bias but the final output is a single number  f(x.W)
+    """This is the same as dense_layer_no_bias but the final output is a single number  f(x.W)
 
     Parameters
     ----------
@@ -253,6 +254,7 @@ def classification_layer_no_bias(
             - db.kernel
             - "'s'"
             - classifier
+
     """
     x_out[0] = np.nan
 
@@ -290,8 +292,7 @@ def classification_layer_with_bias(
     activation_func: np.int8,
     x_out: float,
 ) -> None:
-    """
-    this is the same as dense_layer_with_bias but the final output is a single number f(x.W+bs)
+    """This is the same as dense_layer_with_bias but the final output is a single number f(x.W+bs)
 
     Parameters
     ----------
@@ -325,6 +326,7 @@ def classification_layer_with_bias(
             - db.bias
             - "'s'"
             - classifier
+
     """
     x_out[0] = np.nan
 
@@ -356,10 +358,12 @@ def classification_layer_with_bias(
     forceobj=True,
 )
 def normalisation_layer(
-    x_in: np.ndarray, means: np.ndarray, variances: np.ndarray, x_out: np.ndarray
+    x_in: np.ndarray,
+    means: np.ndarray,
+    variances: np.ndarray,
+    x_out: np.ndarray,
 ) -> None:
-    """
-    Normalisation layer, (x_in - mu)/np.sqrt(variance)
+    """Normalisation layer, (x_in - mu)/np.sqrt(variance)
     Note this is variance not standard deviation
 
     Parameters
@@ -386,5 +390,6 @@ def normalisation_layer(
             - db.mean
             - db.variance
             - wf_normed
+
     """
     x_out[:] = (x_in - means) / np.sqrt(variances)

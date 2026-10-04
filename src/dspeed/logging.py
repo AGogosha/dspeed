@@ -13,7 +13,8 @@ CRITICAL = logging.CRITICAL
 
 
 def setup(level: int = logging.INFO, logger: logging.Logger = None) -> None:
-    """Setup a colorful logging output.
+    """
+    Setup a colorful logging output.
 
     If `logger` is None, sets up only the ``dpeed`` logger.
 
@@ -28,6 +29,7 @@ def setup(level: int = logging.INFO, logger: logging.Logger = None) -> None:
     --------
     >>> from dspeed import logging
     >>> logging.setup(level=logging.DEBUG)
+
     """
     handler = colorlog.StreamHandler()
     colors = colorlog.default_log_colors.copy()

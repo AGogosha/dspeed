@@ -5,8 +5,8 @@ from __future__ import annotations
 import numpy as np
 from numba import guvectorize
 
-from ..utils import numba_defaults_kwargs as nb_kwargs
-from .utils import contains_nan
+from dspeed.processors.utils import contains_nan
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 @guvectorize(
@@ -20,8 +20,7 @@ from .utils import contains_nan
 def linear_slope_fit(
     w_in: np.ndarray, mean: float, stdev: float, slope: float, intercept: float
 ) -> None:
-    """
-    Calculate the mean and standard deviation of the waveform using
+    """Calculate the mean and standard deviation of the waveform using
     Welford's method as well as the slope an intercept of the waveform
     using linear regression.
 
@@ -57,6 +56,7 @@ def linear_slope_fit(
             - ADC
             - ADC
             - ADC
+
     """
     mean[0] = np.nan
     stdev[0] = np.nan
@@ -104,8 +104,7 @@ def linear_slope_fit(
 def linear_slope_diff(
     w_in: np.ndarray, slope: float, intercept: float, mean: float, rms: float
 ) -> None:
-    """
-    Calculate the mean and rms of the waveform after subtracting out the
+    """Calculate the mean and rms of the waveform after subtracting out the
     provided slope and intercept.
 
     Uses Welford's method and linear regression.
@@ -141,6 +140,7 @@ def linear_slope_diff(
           unit:
             - ADC
             - ADC
+
     """
     mean[0] = np.nan
     rms[0] = np.nan

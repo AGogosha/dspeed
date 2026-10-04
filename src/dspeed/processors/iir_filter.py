@@ -7,10 +7,10 @@ from collections.abc import Collection
 import scipy.signal as sg
 from pint import Quantity
 
-from ..errors import DSPFatal
-from ..processing_chain import ProcChainVar
-from ..processors import recursive_filter
-from ..utils import GUFuncWrapper
+from dspeed.errors import DSPFatal
+from dspeed.processing_chain import ProcChainVar
+from dspeed.processors import recursive_filter
+from dspeed.utils import GUFuncWrapper
 
 # Generate recursive filters using scipy.signal
 
@@ -66,6 +66,7 @@ def iir_filter(
           args:
             - wf
             - "wf_lp(unit=ADC)"
+
     """
     # convert units as needed, check inputs are valid
     if isinstance(f_samp, ProcChainVar):
@@ -145,6 +146,7 @@ def notch_filter(
           args:
             - wf
             - "wf_notch(unit=ADC)"
+
     """
     if isinstance(f_samp, ProcChainVar):
         f_samp = 1 / f_samp.period
@@ -203,6 +205,7 @@ def peak_filter(
           args:
             - wf
             - "wf_peak(unit=ADC)"
+
     """
     if isinstance(f_samp, ProcChainVar):
         f_samp = 1 / f_samp.period

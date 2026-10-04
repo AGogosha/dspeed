@@ -5,8 +5,8 @@ from __future__ import annotations
 import numpy as np
 from numba import guvectorize
 
-from ..errors import DSPFatal
-from ..utils import numba_defaults_kwargs as nb_kwargs
+from dspeed.errors import DSPFatal
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 @guvectorize(
@@ -19,7 +19,7 @@ from ..utils import numba_defaults_kwargs as nb_kwargs
         forceobj=True,
     ),
 )
-def cusp_filter(sigma: float, flat: int, decay: int, kernel: np.array) -> None:
+def cusp_filter(sigma: float, flat: int, decay: int, kernel: np.ndarray) -> None:
     """Calculates CUSP kernel.
 
     Parameters
@@ -46,8 +46,8 @@ def cusp_filter(sigma: float, flat: int, decay: int, kernel: np.array) -> None:
             - "3*us"
             - "400*us"
             - kern_cusp
-    """
 
+    """
     if sigma < 0:
         raise DSPFatal("The curvature parameter must be positive")
 
@@ -110,8 +110,8 @@ def zac_filter(sigma: float, flat: int, decay: int, kernel: np.array) -> None:
             - "3*us"
             - "400*us"
             - kern_zac
-    """
 
+    """
     if sigma < 0:
         raise DSPFatal("The curvature parameter must be positive")
 
@@ -221,8 +221,8 @@ def dplms(
             - 1
             - 1
             - kern_dplms
-    """
 
+    """
     noise_mat = np.array(noise_mat)
     reference = np.array(reference)
 

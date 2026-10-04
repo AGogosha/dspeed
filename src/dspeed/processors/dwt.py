@@ -6,8 +6,8 @@ import numpy as np
 from numba import guvectorize
 from pywt import downcoef
 
-from ..errors import DSPFatal
-from ..utils import numba_defaults_kwargs as nb_kwargs
+from dspeed.errors import DSPFatal
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 @guvectorize(
@@ -23,14 +23,12 @@ from ..utils import numba_defaults_kwargs as nb_kwargs
 def discrete_wavelet_transform(
     w_in: np.ndarray, level: int, wave_type: int, coeff: int, w_out: np.ndarray
 ) -> None:
-    """
-    Apply a discrete wavelet transform to the waveform and return only
+    """Apply a discrete wavelet transform to the waveform and return only
     the detailed or approximate coefficients.
 
 
     Parameters
     ----------
-
     w_in
        The input waveform
     level
@@ -60,12 +58,13 @@ def discrete_wavelet_transform(
             - "dwt_haar(256, 'f')"
           prereqs:
             - wf_blsub
-    """
 
+    """
     w_out[:] = np.nan
 
     if level <= 0:
-        raise DSPFatal("The level must be a positive integer")
+        msg = "The level must be a positive integer"
+        raise DSPFatal(msg)
 
     if np.isnan(w_in).any():
         return

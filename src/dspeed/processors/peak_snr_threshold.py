@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 from numba import guvectorize
 
-from ..utils import numba_defaults_kwargs as nb_kwargs
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 @guvectorize(
@@ -44,8 +44,8 @@ def peak_snr_threshold(
         indices of local minima.
     n_idx_out
         number of non-:any:`numpy.nan` indices in `idx_out`.
-    """
 
+    """
     # prepare output
 
     idx_out[:] = np.nan
@@ -57,8 +57,7 @@ def peak_snr_threshold(
         if not np.isnan(idx_in[i]):
             a = int(idx_in[i]) - int(width_in)
             b = int(idx_in[i]) + int(width_in)
-            if a < 0:
-                a = 0
+            a = max(a, 0)
             if b >= len(w_in):
                 b = len(w_in) - 1
             min_index = a

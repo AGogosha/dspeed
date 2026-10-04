@@ -4,9 +4,8 @@ import numpy as np
 from numba import guvectorize
 
 from dspeed.errors import DSPFatal
+from dspeed.processors.utils import contains_nan
 from dspeed.utils import numba_defaults_kwargs as nb_kwargs
-
-from .utils import contains_nan
 
 
 @guvectorize(
@@ -54,8 +53,8 @@ def wf_correction(
           "args": ["w_in", "w_corr", 0, 2, "w_out"],
           "unit": "ADC"
        }
-    """
 
+    """
     w_out[:] = np.nan
     if contains_nan(w_in):
         return

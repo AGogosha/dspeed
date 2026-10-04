@@ -2,15 +2,15 @@
 
 from __future__ import annotations
 
-from typing import Callable
+from collections.abc import Callable
 
 import numpy as np
 from iminuit import Minuit
 from numba import guvectorize
 
-from ..errors import DSPFatal
-from ..processors import double_pole_zero, pole_zero
-from ..utils import numba_defaults_kwargs as nb_kwargs
+from dspeed.errors import DSPFatal
+from dspeed.processors import double_pole_zero, pole_zero
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 class Model:
@@ -20,7 +20,12 @@ class Model:
 
     # the constructor
     def __init__(
-        self, func: Callable, w_in: np.ndarray, baseline: float, beg: int, end: int
+        self,
+        func: Callable,
+        w_in: np.ndarray,
+        baseline: float,
+        beg: int,
+        end: int,
     ) -> None:
         self.func = func
         self.x = np.arange(beg, end)
@@ -89,9 +94,11 @@ def optimize_1pz(
             - "500*us"
             - tau0
           unit: us
+
     See Also
     --------
     ~.pole_zero.pole_zero, .double_pole_zero
+
     """
     val0_out[0] = np.nan
 
@@ -116,7 +123,8 @@ def optimize_1pz(
         raise DSPFatal("The waveform index is out of range")
 
     m = Minuit(
-        Model(pole_zero, w_in, a_baseline_in, int(t_beg_in), int(t_end_in)), [p0_in]
+        Model(pole_zero, w_in, a_baseline_in, int(t_beg_in), int(t_end_in)),
+        [p0_in],
     )
     m.print_level = -1
     m.strategy = 1
@@ -200,6 +208,7 @@ def optimize_2pz(
             - tau2
             - frac
           unit: us
+
     """
     val0_out[0] = np.nan
     val1_out[0] = np.nan
@@ -231,7 +240,11 @@ def optimize_2pz(
         Model(double_pole_zero, w_in, a_baseline_in, int(t_beg_in), int(t_end_in)),
         [p0_in, p1_in, p2_in],
     )
-    m.limits = [(0, tau_upper_bound), (0, tau_upper_bound), (0, frac_upper_bound)]
+    m.limits = [
+        (0, tau_upper_bound),
+        (0, tau_upper_bound),
+        (0, frac_upper_bound),
+    ]
     m.print_level = -1
     m.strategy = 1
     m.errordef = Minuit.LEAST_SQUARES

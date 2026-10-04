@@ -16,8 +16,8 @@ from lh5 import LH5Iterator
 from matplotlib.lines import Line2D
 from pint import Quantity, Unit
 
-from ..processing_chain import build_processing_chain
-from ..units import unit_registry as ureg
+from dspeed.processing_chain import build_processing_chain
+from dspeed.units import unit_registry as ureg
 
 log = logging.getLogger(__name__)
 
@@ -54,8 +54,7 @@ class WaveformBrowser:
         buffer_len: int = 128,
         block_width: int = 8,
     ) -> None:
-        """
-        Parameters
+        """Parameters
         ----------
         raw_in
             raw data with waveforms. Can be a file or list of lh5 files
@@ -150,8 +149,8 @@ class WaveformBrowser:
 
         block_width
             block width for :class:`~.processing_chain.ProcessingChain`.
-        """
 
+        """
         self.norm_par = norm
         self.align_par = align
         self.n_drawn = n_drawn
@@ -216,16 +215,15 @@ class WaveformBrowser:
                     self.styles[i] = None
                 else:
                     self.styles[i] = itertools.cycle(cycler(**sty))
-        else:
-            if isinstance(styles, str):
-                try:
-                    self.styles = plt.style.library[styles]["axes.prop_cycle"]
-                except KeyError:
-                    self.styles = None
-            elif styles is None:
+        elif isinstance(styles, str):
+            try:
+                self.styles = plt.style.library[styles]["axes.prop_cycle"]
+            except KeyError:
                 self.styles = None
-            else:
-                self.styles = itertools.cycle(cycler(**styles))
+        elif styles is None:
+            self.styles = None
+        else:
+            self.styles = itertools.cycle(cycler(**styles))
 
         self.legend_format = []  # list of formatter strings
         self.legend_vals = {}  # Set up dict from names to lists of values
@@ -322,7 +320,8 @@ class WaveformBrowser:
 
     def save_figure(self, f_out: str, *args, **kwargs) -> None:
         """Write figure to file named `f_out`. See
-        :func:`matplotlib.pyplot.savefig` for `args` and `kwargs`."""
+        :func:`matplotlib.pyplot.savefig` for `args` and `kwargs`.
+        """
         self.fig.savefig(f_out)
 
     def set_figure(
@@ -332,7 +331,8 @@ class WaveformBrowser:
 
         Make sure to set ``clear=False`` when drawing if you don't want to
         clear what's already there! Can give a :class:`WaveformBrowser` object
-        to use the figure / axis from that."""
+        to use the figure / axis from that.
+        """
         if isinstance(fig, WaveformBrowser):
             self.fig = fig.fig
             self.ax = fig.ax
@@ -358,7 +358,10 @@ class WaveformBrowser:
         self.n_stored = 0
 
     def find_entry(
-        self, entry: int | Collection[int], append: bool = True, safe: bool = False
+        self,
+        entry: int | Collection[int],
+        append: bool = True,
+        safe: bool = False,
     ) -> None:
         """Find the requested data associated with entry in input files and
         place store it internally without drawing it.
@@ -371,6 +374,7 @@ class WaveformBrowser:
             if ``False``, clear previously found data before finding more.
         safe
             if ``False``, throw an exception for out of range entries.
+
         """
         if not append:
             self.clear_data()
@@ -389,8 +393,7 @@ class WaveformBrowser:
                 if len(self.lh5_out) == 0:
                     if safe:
                         raise IndexError
-                    else:
-                        return
+                    return
 
                 self.proc_chain.execute()
                 i_tb = 0
@@ -439,12 +442,16 @@ class WaveformBrowser:
                 self._update_auto_limit(x, y)
 
             elif isinstance(
-                data, (lgdo.Array, lgdo.ArrayOfEqualSizedArrays, lgdo.VectorOfVectors)
+                data,
+                (
+                    lgdo.Array,
+                    lgdo.ArrayOfEqualSizedArrays,
+                    lgdo.VectorOfVectors,
+                ),
             ):
                 if isinstance(
                     data, (lgdo.ArrayOfEqualSizedArrays, lgdo.VectorOfVectors)
                 ):
-
                     vals = list(data.view_as("ak")[i_tb].to_numpy())
 
                 else:
@@ -509,7 +516,7 @@ class WaveformBrowser:
         if clear:
             self.ax.clear()
 
-        x_lim = self.x_lim if self.x_lim else self.auto_x_lim
+        x_lim = self.x_lim or self.auto_x_lim
         y_lim = self.y_lim
         if not y_lim:
             y_range = self.auto_y_lim[1] - self.auto_y_lim[0]
@@ -630,13 +637,15 @@ class WaveformBrowser:
             if ``True``, clear previously drawn objects in the axes before drawing.
         safe
             if ``False``, throw an exception for out of range entries.
+
         """
         self.find_entry(entry, append)
         self.draw_current(clear)
 
     def find_next(self, n_wfs: int = None, append: bool = False) -> tuple[int, int]:
         """Find the next `n_wfs` waveforms (default `self.n_drawn`). See
-        :meth:`find_entry`."""
+        :meth:`find_entry`.
+        """
         if not n_wfs:
             n_wfs = self.n_drawn
         entries = (self.next_entry, self.next_entry + n_wfs)
@@ -649,7 +658,8 @@ class WaveformBrowser:
         self, n_wfs: int = None, append: bool = False, clear: bool = True
     ) -> tuple[int, int]:
         """Draw the next `n_wfs` waveforms (default `self.n_drawn`). See
-        :meth:`draw_next`."""
+        :meth:`draw_next`.
+        """
         entries = self.find_next(n_wfs, append)
         self.draw_current(clear)
         return entries
@@ -662,8 +672,7 @@ class WaveformBrowser:
     def __len__(self) -> int:
         if self.lh5_it is not None:
             return len(self.lh5_it)
-        else:
-            return len(self.lh5_in)
+        return len(self.lh5_in)
 
     def __iter__(self) -> tuple[int, int]:
         while self.next_entry < len(self):

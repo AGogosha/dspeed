@@ -5,8 +5,8 @@ from __future__ import annotations
 import numpy as np
 from numba import guvectorize
 
-from ..utils import numba_defaults_kwargs as nb_kwargs
-from .utils import contains_nan
+from dspeed.processors.utils import contains_nan
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 @guvectorize(
@@ -20,17 +20,17 @@ from .utils import contains_nan
 def inject_gumbel(
     wf_in: np.ndarray, a: float, t0: float, beta: float, wf_out: np.ndarray
 ) -> None:
-    """
-    Injects a Gumbel distribution into the waveform `wf_in`, modifying it in place in `wf_out`.
+    """Injects a Gumbel distribution into the waveform `wf_in`, modifying it in place in `wf_out`.
 
-    Parameters:
+    Parameters
+    ----------
     - wf_in: Input waveform (1D array).
     - a: Amplitude of the Gumbel distribution.
     - t0: Temporal centroid of the Gumbel distribution.
     - beta: Scale parameter (controls spread of the Gumbel distribution).
     - wf_out: Output waveform (1D array), modified by adding the Gumbel distribution.
-    """
 
+    """
     wf_out[:] = np.nan
 
     # Early exit if any of the inputs contain NaN values (invalid inputs).
@@ -46,14 +46,11 @@ def inject_gumbel(
     end = mu + (8 * beta)
 
     # Ensure the range is within valid waveform boundaries.
-    if start < 0:
-        start = 0
-    if end > len(wf_in):
-        end = len(wf_in)
+    start = max(start, 0)
+    end = min(end, len(wf_in))
 
     # Loop through the specified range and add the Gumbel distribution to wf_out.
     for i in range(start, end):
-
         z = (i - mu) / beta
         wf_out[i] += (a / beta) * np.exp(-(z + np.exp(-z)))
 
@@ -101,8 +98,8 @@ def inject_general_logistic(
         the decay parameter :math:`\tau` of the injected waveform.
     wf_out
         the output waveform.
-    """
 
+    """
     wf_out[:] = np.nan
 
     # Early exit if any of the inputs contain NaN values (invalid inputs).

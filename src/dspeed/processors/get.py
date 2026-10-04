@@ -3,8 +3,8 @@
 import numpy as np
 from numba import guvectorize
 
-from ..errors import DSPFatal
-from ..utils import numba_defaults_kwargs as nb_kwargs
+from dspeed.errors import DSPFatal
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 @guvectorize(
@@ -33,7 +33,7 @@ def get(a_in, i, a_out):
     will get position ``i`` before the end. If ``i`` is out of range,
     raise ``DSPFatal``.
 
-    parameters
+    Parameters
     ----------
     a_in
         input array
@@ -41,6 +41,7 @@ def get(a_in, i, a_out):
         input index
     a_out
         output value
+
     """
     if i >= -len(a_in) and i < len(a_in):
         a_out[:] = a_in[i]
@@ -74,7 +75,7 @@ def get_default(a_in, i, default, a_out):
     will get position ``i`` before the end. If ``i`` is out of range,
     or value is ``NaN``, return ``default``
 
-    parameters
+    Parameters
     ----------
     a_in
         input array
@@ -84,6 +85,7 @@ def get_default(a_in, i, default, a_out):
         input value to return if value is not found
     a_out
         output value
+
     """
     if i >= -len(a_in) and i < len(a_in) and not np.isnan(a_in[i]):
         a_out[:] = a_in[i]

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from ..utils import GUFuncWrapper
+from dspeed.utils import GUFuncWrapper
 
 
 def tf_model(filepath: str) -> GUFuncWrapper:
@@ -27,6 +27,7 @@ def tf_model(filepath: str) -> GUFuncWrapper:
             - output
           init_args:
             - "'model.keras'"
+
     """
     import tensorflow as tf
 

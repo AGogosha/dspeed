@@ -15,7 +15,8 @@ from dspeed.utils import numba_defaults_kwargs as nb_kwargs
     **nb_kwargs(forceobj=True),
 )
 def fft(w_in, dft_out):
-    """Perform a discrete fourier transform from a real waveform to a complex
+    """
+    Perform a discrete fourier transform from a real waveform to a complex
     fourier spectrum
 
     Parameters
@@ -35,9 +36,10 @@ def fft(w_in, dft_out):
             args:
               - wf
               - dft(len(wf)//2+1, period=1/wf.period/len(wf)
+
     """
     if not len(w_in) // 2 + 1 == len(dft_out):
-        raise DSPFatal(f"Size of fft must be len(w_in)//2+1 = {len(w_in)//2+1}")
+        raise DSPFatal(f"Size of fft must be len(w_in)//2+1 = {len(w_in) // 2 + 1}")
 
     dft_out[:] = np.nan
     if np.isnan(w_in).any():
@@ -52,7 +54,8 @@ def fft(w_in, dft_out):
     **nb_kwargs(forceobj=True),
 )
 def ifft(dft_in, w_out):
-    """Perform an inverse discrete fourier transform from a complex discrete
+    """
+    Perform an inverse discrete fourier transform from a complex discrete
     fourier spectrum to a real waveform to a complex
 
     Parameters
@@ -72,9 +75,12 @@ def ifft(dft_in, w_out):
             args:
               - dft
               - waveform((len(dft)-1)*2, period=2/dft.period/len(dft)
+
     """
     if not (len(dft_in) - 1) * 2 == len(w_out):
-        raise DSPFatal(f"Size of wf must be (len(dft_in)-1)*2 = {(len(dft_in)-1)*2}")
+        raise DSPFatal(
+            f"Size of wf must be (len(dft_in)-1)*2 = {(len(dft_in) - 1) * 2}"
+        )
 
     w_out[:] = np.nan
     if np.isnan(dft_in).any():
@@ -95,7 +101,8 @@ def abs2norm(x, norm):
     **nb_kwargs(forceobj=True),
 )
 def psd(w_in, psd_out):
-    """Perform a discrete fourier transform from a real waveform and
+    """
+    Perform a discrete fourier transform from a real waveform and
     extract the power spectral density
 
     Parameters
@@ -115,9 +122,10 @@ def psd(w_in, psd_out):
             args:
               - wf
               - psd(len(wf)//2+1, period=1/wf.period/len(wf)
+
     """
     if not len(w_in) // 2 + 1 == len(psd_out):
-        raise DSPFatal(f"Size of psd must be len(w_in)//2+1 = {len(w_in)//2+1}")
+        raise DSPFatal(f"Size of psd must be len(w_in)//2+1 = {len(w_in) // 2 + 1}")
 
     psd_out[:] = np.nan
     if np.isnan(w_in).any():

@@ -5,9 +5,9 @@ from __future__ import annotations
 import numpy as np
 from numba import guvectorize
 
-from ..errors import DSPFatal
-from ..processors import time_point_thresh
-from ..utils import numba_defaults_kwargs as nb_kwargs
+from dspeed.errors import DSPFatal
+from dspeed.processors import time_point_thresh
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 @guvectorize(
@@ -47,6 +47,7 @@ def remove_duplicates(
     See Also
     --------
     .multi_t_filter
+
     """
     # initialize arrays
     t_out[:] = np.nan
@@ -120,8 +121,8 @@ def multi_t_filter(
     See Also
     --------
     ~.time_point_thresh.time_point_thresh
-    """
 
+    """
     # initialize arrays, padded with the elements we want
     t_out[:] = np.nan
 

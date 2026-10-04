@@ -5,9 +5,9 @@ from __future__ import annotations
 import numpy as np
 from numba import guvectorize
 
-from ..utils import GUFuncWrapper
-from ..utils import numba_defaults_kwargs as nb_kwargs
-from .utils import contains_nan
+from dspeed.processors.utils import contains_nan
+from dspeed.utils import GUFuncWrapper
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 @guvectorize(
@@ -47,7 +47,6 @@ def poly_fit(length, deg):
             args: ["wf_logged", "fit_pars(shape=4)"]
             init_args: ["len(wf_logged)", 3]
     """
-
     vals_array = np.zeros(2 * deg + 1, dtype="float64")
 
     for i in range(length):

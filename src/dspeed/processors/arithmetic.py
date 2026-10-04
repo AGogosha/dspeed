@@ -3,8 +3,8 @@ from __future__ import annotations
 import numpy as np
 from numba import guvectorize
 
-from ..utils import numba_defaults_kwargs as nb_kwargs
-from .utils import contains_nan
+from dspeed.processors.utils import contains_nan
+from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
 @guvectorize(
@@ -43,6 +43,7 @@ def mean_below_threshold(w_in: np.ndarray, threshold: float, result: float) -> N
             - wf_mean_below_threshold
           unit:
             - ADC
+
     """
     result[0] = np.nan
 

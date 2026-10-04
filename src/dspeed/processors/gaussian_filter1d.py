@@ -54,7 +54,8 @@ from dspeed.utils import numba_defaults_kwargs as nb_kwargs
     ),
 )
 def gaussian_filter1d(sigma: int, truncate: float, weights: np.ndarray) -> None:
-    """1-D Gaussian filter.
+    """
+    1-D Gaussian filter.
 
     Note
     ----
@@ -68,8 +69,8 @@ def gaussian_filter1d(sigma: int, truncate: float, weights: np.ndarray) -> None:
         standard deviation for Gaussian kernel
     truncate
         truncate the filter at this many standard deviations.
-    """
 
+    """
     # Make the radius of the filter equal to truncate standard deviations
     sd = float(sigma)
     lw = int(truncate * sd + 0.5)

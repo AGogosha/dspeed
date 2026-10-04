@@ -4,11 +4,10 @@ from __future__ import annotations
 class DSPError(Exception):
     """Base class for signal processors."""
 
-    pass
-
 
 class DSPFatal(DSPError):
-    """Fatal error thrown by DSP processors that halts production.
+    """
+    Fatal error thrown by DSP processors that halts production.
 
     Attributes
     ----------
@@ -18,6 +17,7 @@ class DSPFatal(DSPError):
     processor: str
         string of processor and arguments. This will be set after the exception
         is caught, and appended to the error message
+
     """
 
     def __init__(self, *args) -> None:
@@ -36,5 +36,3 @@ class DSPFatal(DSPError):
 
 class ProcessingChainError(DSPError):
     """Error thrown when there is a problem setting up a processing chain."""
-
-    pass
