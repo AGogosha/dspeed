@@ -186,7 +186,7 @@ def build_dsp(
 
     else:
         msg = f"raw_in was not a file name, Table, or LH5Iterator: {raw_in}"
-        raise RuntimeError(msg)
+        raise TypeError(msg)
 
     # get the config(s)
     if isinstance(dsp_config, str):
@@ -296,9 +296,9 @@ def build_dsp(
                         db_node = db_node[db_key]
                     log.debug(f"database lookup: found {db_node} for {file}")
                     file = db_node
-                except (KeyError, TypeError):
+                except (KeyError, TypeError) as exc:
                     msg = f"did not find {file} in database."
-                    raise ProcessingChainError(msg)
+                    raise ProcessingChainError(msg) from exc
 
             # check if group points to a db override
             if db_parser.fullmatch(group):
@@ -308,9 +308,9 @@ def build_dsp(
                         db_node = db_node[db_key]
                     log.debug(f"database lookup: found {db_node} for {group}")
                     group = db_node
-                except (KeyError, TypeError):
+                except (KeyError, TypeError) as exc:
                     msg = f"did not find {group} in database."
-                    raise ProcessingChainError(msg)
+                    raise ProcessingChainError(msg) from exc
 
             if isinstance(lh5_in, lh5.LH5Iterator):
                 lh5_in.add_friend(

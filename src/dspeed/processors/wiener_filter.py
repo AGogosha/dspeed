@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 from lh5 import read_as
+from lh5.io.exceptions import LH5DecodeError
 from lh5.io.store import LH5Store
 from numba import guvectorize
 
@@ -50,17 +51,17 @@ def wiener_filter(file_name_array: list[str]) -> np.ndarray:
     # Check that the file is valid and the data is in the correct format
     try:
         file_name_array[0]
-    except Exception:
+    except IndexError as exc:
         msg = "init_args must be an array with the filename"
-        raise DSPFatal(msg)
+        raise DSPFatal(msg) from exc
 
     file_name = file_name_array[0]
 
     try:
         f = LH5Store().gimme_file(file_name, "r")
-    except Exception:
-        msg = "File must be a valid lh5 file"
-        raise DSPFatal(msg)
+    except (FileNotFoundError, LH5DecodeError) as exc:
+        msg = "File must be a valid LH5 file"
+        raise DSPFatal(msg) from exc
 
     if "spms/processed/superpulse" not in f:
         msg = "lh5 file must have 'spms/processed/superpulse' as a group"
