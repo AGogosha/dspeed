@@ -1,6 +1,6 @@
 import numpy as np
 
-from dspeed.processors import poly_fit
+from dspeed.processors.poly_fit import poly_fit
 
 
 def test_poly_fit(compare_numba_vs_python):
