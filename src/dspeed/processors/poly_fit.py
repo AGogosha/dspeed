@@ -18,9 +18,7 @@ from dspeed.utils import numba_defaults_kwargs as nb_kwargs
     "(n),(m,m)->(m)",
     **nb_kwargs,
 )
-def _poly_fitter(
-    w_in: np.ndarray, inv: np.ndarray, poly_pars: np.ndarray
-) -> None:
+def _poly_fitter(w_in: np.ndarray, inv: np.ndarray, poly_pars: np.ndarray) -> None:
     """Helper function that fits w_in to order `len(poly_pars)-1` polynomial,
     while providing necessary inverse matrix.
     """

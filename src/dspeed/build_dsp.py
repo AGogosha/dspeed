@@ -166,9 +166,7 @@ def build_dsp(
             isinstance(lh5_tables, Collection)
             and all(isinstance(el, str) for el in lh5_tables)
         ):
-            msg = (
-                "lh5_tables must be None, a string, or a collection of strings"
-            )
+            msg = "lh5_tables must be None, a string, or a collection of strings"
             raise RuntimeError(msg)
 
         # check if group points to raw data; sometimes 'raw' is nested, e.g g024/raw
@@ -339,9 +337,7 @@ def build_dsp(
         _outputs = this_config["outputs"] if outputs is None else outputs
 
         # resize inputs, get table and iterable versions
-        tot_n_rows = (
-            len(lh5_in) if n_entries is None else min(n_entries, len(lh5_in))
-        )
+        tot_n_rows = len(lh5_in) if n_entries is None else min(n_entries, len(lh5_in))
 
         if isinstance(lh5_in, lh5.LH5Iterator):
             lh5_it = lh5_in
@@ -401,9 +397,7 @@ def build_dsp(
             loading_time += time.time() - curr
             processing_time_start = time.time()
             i_entry = (
-                lh5_it.current_i_entry
-                if isinstance(lh5_it, lh5.LH5Iterator)
-                else 0
+                lh5_it.current_i_entry if isinstance(lh5_it, lh5.LH5Iterator) else 0
             )
             try:
                 proc_chain(tb_in, tb_out)

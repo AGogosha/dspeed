@@ -88,7 +88,9 @@ def wiener_filter(file_name_array: list[str]) -> np.ndarray:
         raise DSPFatal(msg)
 
     if np.argmax(superpulse) <= 0 or np.argmax(superpulse) > len(superpulse):
-        msg = "The index of the maximum of the superpulse must occur within the waveform"
+        msg = (
+            "The index of the maximum of the superpulse must occur within the waveform"
+        )
         raise DSPFatal(msg)
 
     # Transform these to the frequency domain to eventually create the wiener filter

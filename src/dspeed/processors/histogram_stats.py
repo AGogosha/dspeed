@@ -228,8 +228,9 @@ def histogram_stats(
         return
 
     if len(weights_in) + 1 != len(edges_in):
-        msg = "length edges_in must be exactly 1 + length of weights_in"
-        raise DSPFatal(msg)
+        raise DSPFatal(
+            "length edges_in must be exactly 1 + length of weights_in"
+        )
 
     # find global maximum search from left to right
     max_index = 0
@@ -254,16 +255,18 @@ def histogram_stats(
     left_width = np.nan
     right_width = np.nan
 
-    # Preserve the original right-hand search, but allow zero bins.
+    # and the approx fwhm
     for i in range(max_index, len(weights_in)):
-        if weights_in[i] <= half_max:
+        if weights_in[i] <= half_max and weights_in[i] != 0:
             right_width = abs(max_out[0] - edges_in[i])
             break
 
-    # Preserve the original left-hand search behavior.
+    # look also into the other direction
     for i in range(max_index):
         if weights_in[i] >= half_max and weights_in[i] != 0:
             left_width = abs(max_out[0] - edges_in[i])
             break
 
+    # Select the larger available width. If only one side was found,
+    # np.fmax returns that side; if neither was found, it returns NaN.
     fwhm_out[0] = np.fmax(left_width, right_width)
