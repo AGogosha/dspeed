@@ -148,6 +148,7 @@ ignore = [
     "PLR2004",
     "FBT001",
     "FBT002",
+    "G004",
 ]
 [tool.ty.rules]
 invalid-assignment = "ignore"
