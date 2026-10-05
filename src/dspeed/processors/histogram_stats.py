@@ -168,7 +168,7 @@ def histogram_peakstats(
 def histogram_stats(
     weights_in: np.ndarray,
     edges_in: np.ndarray,
-    mode_out: int,
+    mode_out: float,
     max_out: float,
     fwhm_out: float,
     max_in: float,
@@ -239,15 +239,12 @@ def histogram_stats(
                 max_index = i
 
     # is user specifies mean justfind mean index
-    else:  # noqa: PLR5501
-        if max_in > edges_in[-2]:
-            max_index = len(weights_in) - 1
-        else:
-            for i in range(0, len(weights_in), 1):
-                if abs(max_in - edges_in[i]) < abs(
-                    max_in - edges_in[max_index]
-                ):
-                    max_index = i
+    elif max_in > edges_in[-2]:
+        max_index = len(weights_in) - 1
+    else:
+        for i in range(0, len(weights_in), 1):
+            if abs(max_in - edges_in[i]) < abs(max_in - edges_in[max_index]):
+                max_index = i
 
     mode_out[0] = max_index
     # returns left bin edge
