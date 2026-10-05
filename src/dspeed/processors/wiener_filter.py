@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-import lh5
 import numpy as np
+from lh5 import read_as
+from lh5.io.store import LH5Store
 from numba import guvectorize
 
 from dspeed.errors import DSPFatal
@@ -45,10 +46,8 @@ def wiener_filter(file_name_array: list[str]) -> np.ndarray:
             - /path/to/file/wiener.lh5
 
     """
-    sto = lh5.LH5Store()
 
     # Check that the file is valid and the data is in the correct format
-
     try:
         file_name_array[0]
     except Exception:
@@ -58,7 +57,7 @@ def wiener_filter(file_name_array: list[str]) -> np.ndarray:
     file_name = file_name_array[0]
 
     try:
-        f = sto.gimme_file(file_name, "r")
+        f = LH5Store().gimme_file(file_name, "r")
     except Exception:
         msg = "File must be a valid lh5 file"
         raise DSPFatal(msg)
@@ -73,11 +72,9 @@ def wiener_filter(file_name_array: list[str]) -> np.ndarray:
 
     # Read in the data
 
-    superpulse, _ = sto.read("spms/processed/superpulse", file_name)
-    superpulse = superpulse.nda
+    superpulse = read_as("spms/processed/superpulse", file_name, library="np")
 
-    noise_wf, _ = sto.read("spms/processed/noise_wf", file_name)
-    noise_wf = noise_wf.nda
+    noise_wf = read_as("spms/processed/noise_wf", file_name, library="np")
 
     # Now check that the data are valid
 
@@ -90,9 +87,7 @@ def wiener_filter(file_name_array: list[str]) -> np.ndarray:
         raise DSPFatal(msg)
 
     if np.argmax(superpulse) <= 0 or np.argmax(superpulse) > len(superpulse):
-        msg = (
-            "The index of the maximum of the superpulse must occur within the waveform"
-        )
+        msg = "The index of the maximum of the superpulse must occur within the waveform"
         raise DSPFatal(msg)
 
     # Transform these to the frequency domain to eventually create the wiener filter

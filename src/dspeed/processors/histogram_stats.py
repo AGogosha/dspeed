@@ -239,12 +239,15 @@ def histogram_stats(
                 max_index = i
 
     # is user specifies mean justfind mean index
-    elif max_in > edges_in[-2]:
-        max_index = len(weights_in) - 1
-    else:
-        for i in range(0, len(weights_in), 1):
-            if abs(max_in - edges_in[i]) < abs(max_in - edges_in[max_index]):
-                max_index = i
+    else:  # noqa: PLR5501
+        if max_in > edges_in[-2]:
+            max_index = len(weights_in) - 1
+        else:
+            for i in range(0, len(weights_in), 1):
+                if abs(max_in - edges_in[i]) < abs(
+                    max_in - edges_in[max_index]
+                ):
+                    max_index = i
 
     mode_out[0] = max_index
     # returns left bin edge
