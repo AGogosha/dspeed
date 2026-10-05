@@ -139,5 +139,4 @@ def poly_exp_rms(
         mean += (w_in[i] - np.exp(temp)) / (i + 1)
         rms += (w_in[i] - np.exp(temp)) ** 2
 
-    rms /= len(w_in) - 1
-    rms[0] = np.sqrt(rms)
+    rms = np.sqrt(rms / (len(w_in) - 1))
