@@ -59,12 +59,10 @@ def remove_duplicates(
         return
 
     # check if any later indexed values are equal to the earliest instance
-    k = 0
     for index1 in range(len(t_in)):
         for index2 in range(len(t_in[index1 + 1 :])):
             if t_in[index1] == t_in[index2 + index1 + 1]:
-                t_out[index2 + index1 + 1] = vt_min_in[k]
-        k += 1  # this makes sure that the index of the misidentified afterpulse tp0 is replaced with the correct corresponding minimum
+                t_out[index2 + index1 + 1] = vt_min_in[index1]
 
     # Fill up the output with the rest of the values from the input that weren't repeats
     for index in range(len(t_in)):
