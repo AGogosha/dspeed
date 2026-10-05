@@ -159,8 +159,8 @@ def histogram_peakstats(
 
 @guvectorize(
     [
-        "void(float32[:], float32[:], float32[:], float32[:],float32[:],float32)",
-        "void(float64[:], float64[:], float64[:], float64[:],float64[:],float64)",
+        "void(float32[:], float32[:], float32, float32, float32, float32)",
+        "void(float64[:], float64[:], float64, float64, float64, float64)",
     ],
     "(n),(m),(),(),(),()",
     **nb_kwargs,
@@ -250,14 +250,20 @@ def histogram_stats(
     # returns left bin edge
     max_out[0] = edges_in[max_index]
 
-    # and the approx fwhm
-    for i in range(max_index, len(weights_in), 1):
-        if weights_in[i] <= 0.5 * weights_in[max_index] and weights_in[i] != 0:
-            fwhm_out[0] = abs(max_out[0] - edges_in[i])
+    half_max = 0.5 * weights_in[max_index]
+    left_width = np.nan
+    right_width = np.nan
+
+    # Preserve the original right-hand search, but allow zero bins.
+    for i in range(max_index, len(weights_in)):
+        if weights_in[i] <= half_max:
+            right_width = abs(max_out[0] - edges_in[i])
             break
 
-    # look also into the other direction
-    for i in range(0, max_index, 1):
-        if weights_in[i] >= 0.5 * weights_in[max_index] and weights_in[i] != 0:
-            fwhm_out[0] = max(fwhm_out[0], abs(max_out[0] - edges_in[i]))
+    # Preserve the original left-hand search behavior.
+    for i in range(max_index):
+        if weights_in[i] >= half_max and weights_in[i] != 0:
+            left_width = abs(max_out[0] - edges_in[i])
             break
+
+    fwhm_out[0] = np.fmax(left_width, right_width)
