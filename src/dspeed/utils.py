@@ -14,7 +14,7 @@ import numpy as np
 log = logging.getLogger("dspeed")
 
 
-def precompile_numba():
+def precompile_numba() -> None:
     """Precompile and cache (if caching is enabled) all numba processors"""
     from dspeed import processors
 
@@ -23,7 +23,7 @@ def precompile_numba():
         log.info(f"Compiled {proc}.")
 
 
-def clean_numba_cache():
+def clean_numba_cache() -> None:
     """Find and remove all cached numba files associated with this dspeed installation"""
     cache_dirs = list(Path(__file__).parent.resolve().rglob("__pycache__"))
     subpaths = [
@@ -129,8 +129,8 @@ class GUFuncWrapper:
         name: str | None = None,
         vectorized: bool = False,
         copy_out: bool = True,
-        doc_string: str = None,
-    ):
+        doc_string: str | None = None,
+    ) -> None:
         """
         Parameters
         ----------
@@ -180,7 +180,7 @@ class GUFuncWrapper:
         elif fun.__doc__:
             self.__doc__ = fun.__doc__
 
-    def __call__(self, *args):
+    def __call__(self, *args: object) -> None:
         """Call wrapped function with "in place" outputs"""
         assert len(args) == self.nargs
 
@@ -190,7 +190,7 @@ class GUFuncWrapper:
             rets = self.ufunc(*ins)
             if self.nout == 1:
                 rets = [rets]
-            for out, ret in zip(outs, rets):
+            for out, ret in zip(outs, rets, strict=False):
                 out[...] = ret
         elif self.vectorized:
             self.ufunc(*args)
@@ -213,10 +213,11 @@ class GUFuncWrapper:
             )
 
             # check that dimensions match; broadcast inputs that don't
-            for i, (arg, shape) in enumerate(zip(args, shapes)):
-                if arg.shape != shape and arg.shape != (1,) + shape:
+            for i, (arg, shape) in enumerate(zip(args, shapes, strict=False)):
+                if arg.shape not in (shape, (1, *shape)):
                     if i >= self.nin:
-                        raise ValueError("Outputs are not the right shape")
+                        msg = "Outputs are not the right shape"
+                        raise ValueError(msg)
                     args[i] = np.broadcast_to(arg, shape, subok=True)
 
             # loop over outer dimensions and call function
@@ -236,13 +237,13 @@ class GUFuncWrapper:
                     rets = self.ufunc(*ins)
                     if self.nout == 1:
                         rets = [rets]
-                    for out, ret in zip(outs, rets):
+                    for out, ret in zip(outs, rets, strict=False):
                         out[...] = ret
                 else:
                     self.ufunc(*ins, *outs)
 
 
-def dspeed_guvectorize(*args, **kwargs):
+def dspeed_guvectorize(*args: Any, **kwargs: Any) -> Callable:
     """
     Decorator to create a callable object implementing the gufunc interface.
     See arguments in GUFuncWrapper initializer
@@ -258,9 +259,7 @@ def getenv_bool(name: str, default: bool = False) -> bool:
     val = os.getenv(name)
     if not val:
         return default
-    if val.lower() in ("1", "t", "true"):
-        return True
-    return False
+    return val.lower() in ("1", "t", "true")
 
 
 class NumbaDefaults(MutableMapping):
@@ -289,7 +288,7 @@ class NumbaDefaults(MutableMapping):
     >>> # must set options before explicitly importing pygama.dsp.processors!
     >>> numba_defaults.cache = False
     >>> numba_defaults.boundscheck = True
-    >>> build_dsp(...) # if not explicit, processors imports happen here
+    >>> build_dsp(...)  # if not explicit, processors imports happen here
 
     """
 

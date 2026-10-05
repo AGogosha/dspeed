@@ -2,16 +2,16 @@
 guvectorized functions, these will typically be jit and njit functions!
 """
 
-import numba
 import numpy as np
+from numba import njit
 
 from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 # filter out default kwargs that don't work in jit/njit
-nb_kwargs_util = {k: v for k, v in nb_kwargs.items() if k not in {"target"}}
+nb_kwargs_util = {k: v for k, v in nb_kwargs.items() if k != "target"}
 
 
-@numba.njit(**nb_kwargs_util)
+@njit(**nb_kwargs_util)
 def contains_nan(w: np.ndarray) -> bool:
     """Return whether any element of `w` is NaN."""
     # Process in fixed blocks to benefit from SIMD
@@ -25,8 +25,4 @@ def contains_nan(w: np.ndarray) -> bool:
         i += 16
 
     # Process final block
-    for v in w[i:]:
-        if np.isnan(v):
-            return True
-
-    return False
+    return any(np.isnan(v) for v in w[i:])

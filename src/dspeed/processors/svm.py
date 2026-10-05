@@ -3,11 +3,15 @@
 from __future__ import annotations
 
 import pickle
-from collections.abc import Callable
+from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from dspeed.utils import GUFuncWrapper
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 def svm_predict(svm_file: str) -> Callable:
@@ -47,10 +51,12 @@ def svm_predict(svm_file: str) -> Callable:
     if svm_file == 0:
         svm = None
     else:
-        with open(svm_file, "rb") as f:
+        with Path(svm_file).open("rb") as f:
             svm = pickle.load(f)
 
-    def svm_proc(w_in):
+    def svm_proc(
+        w_in: np.ndarray,
+    ) -> float | np.ndarray:  # not sure if correct to use float or np.ndarray
         if svm is None or np.isnan(w_in).any():
             return np.nan
 

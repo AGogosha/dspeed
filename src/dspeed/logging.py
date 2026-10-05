@@ -12,7 +12,7 @@ FATAL = logging.FATAL
 CRITICAL = logging.CRITICAL
 
 
-def setup(level: int = logging.INFO, logger: logging.Logger = None) -> None:
+def setup(level: int = logging.INFO, logger: logging.Logger | None = None) -> None:
     """
     Setup a colorful logging output.
 

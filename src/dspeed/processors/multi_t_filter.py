@@ -6,7 +6,7 @@ import numpy as np
 from numba import guvectorize
 
 from dspeed.errors import DSPFatal
-from dspeed.processors import time_point_thresh
+from dspeed.processors.time_point_thresh import time_point_thresh
 from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
@@ -72,9 +72,8 @@ def remove_duplicates(
             t_out[index] = t_in[index]
 
     # makes sure that the first maximum found isn't the start of the waveform
-    if not np.isnan(t_out[0]):
-        if int(t_out[0]) == 0:
-            t_out[:] = np.append(t_out[1:], np.nan)
+    if not np.isnan(t_out[0]) and int(t_out[0]) == 0:
+        t_out[:] = np.append(t_out[1:], np.nan)
 
 
 @guvectorize(

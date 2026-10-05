@@ -63,8 +63,8 @@ def get_wf_centroid(w_in: np.ndarray, shift: int, centroid: int) -> None:
         msg = "shift must be shorter than input waveform size"
         raise DSPFatal(msg)
 
-    i_min = w_in.argmin()
-    i_max = w_in.argmax()
+    i_min = np.argmin(w_in)
+    i_max = np.argmax(w_in)
     if i_min == i_max:
         return
 

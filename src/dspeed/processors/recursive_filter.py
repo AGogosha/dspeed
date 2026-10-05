@@ -19,7 +19,14 @@ from dspeed.utils import numba_defaults_kwargs as nb_kwargs
     nopython=True,
     **nb_kwargs,
 )
-def recursive_filter(w_in, a, b, init_in, init_out, w_out):
+def recursive_filter(
+    w_in: np.ndarray,
+    a: np.ndarray,
+    b: np.ndarray,
+    init_in: float,
+    init_out: float,
+    w_out: np.ndarray,
+) -> None:
     r"""Apply a recursive filter using ``a`` and ``b`` as the
     feedforward and feedback coefficients, respectively:
 
@@ -67,9 +74,8 @@ def recursive_filter(w_in, a, b, init_in, init_out, w_out):
         msg = "b cannot be scalar"
         raise DSPFatal(msg)
     if len(w_in) <= len(b):
-        raise DSPFatal(
-            f"The length of the waveform must be larger than {len(b)} for the filter to work safely"
-        )
+        msg = f"The length of the waveform must be larger than {len(b)} for the filter to work safely"
+        raise DSPFatal(msg)
 
     # circular buffer; make float64 to mitigate numerical instabilities
     circ_buf = np.full(len(b), init_out, dtype="float64")

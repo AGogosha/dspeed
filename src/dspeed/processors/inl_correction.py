@@ -57,6 +57,5 @@ def inl_correction(w_in: np.ndarray, inl: np.ndarray, w_out: np.ndarray) -> None
         if 0 <= adc_code < len(inl):
             w_out[i] = w_in[i] + inl[adc_code]
         else:
-            raise DSPFatal(
-                f"ADC code {adc_code} out of range for INL array of length {len(inl)}"
-            )
+            msg = f"ADC code {adc_code} out of range for INL array of length {len(inl)}"
+            raise DSPFatal(msg)

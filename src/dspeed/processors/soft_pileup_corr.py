@@ -56,7 +56,7 @@ def soft_pileup_corr(
     if contains_nan(w_in) or np.isnan(n_in) or np.isnan(tau_in):
         return
 
-    if not np.floor(n_in) == n_in:
+    if np.floor(n_in) != n_in:
         msg = "The number of samples is not an integer"
         raise DSPFatal(msg)
 
@@ -135,7 +135,7 @@ def soft_pileup_corr_bl(
     if contains_nan(w_in) or np.isnan(n_in) or np.isnan(tau_in) or np.isnan(b_in):
         return
 
-    if not np.floor(n_in) == n_in:
+    if np.floor(n_in) != n_in:
         msg = "The number of samples is not an integer"
         raise DSPFatal(msg)
 

@@ -102,7 +102,7 @@ def wiener_filter(file_name_array: list[str]) -> np.ndarray:
 
     # Create the point spread function for the detector's response
 
-    def psf(superpulse, fft_superpulse):
+    def psf(superpulse: np.ndarray, fft_superpulse: np.ndarray) -> np.ndarray:
         delta = np.zeros_like(superpulse)
         arg_max = np.argmax(superpulse)
         delta[arg_max] = np.amax(superpulse)

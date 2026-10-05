@@ -15,7 +15,7 @@ from dspeed.utils import numba_defaults_kwargs as nb_kwargs
     ],
     **nb_kwargs,
 )
-def round_to_nearest(val: np.ndarray, to_nearest: float) -> None:
+def round_to_nearest(val: np.ndarray, to_nearest: float) -> float:
     """Round value to nearest multiple of to_nearest.
 
     Parameters
@@ -61,7 +61,7 @@ def round_to_nearest(val: np.ndarray, to_nearest: float) -> None:
     ],
     **nb_kwargs,
 )
-def floor_to_nearest(val: np.ndarray, to_nearest: float) -> None:
+def floor_to_nearest(val: np.ndarray, to_nearest: float) -> float:
     """Return largest multiple of to_nearest that is <= val
 
     Parameters
@@ -107,7 +107,7 @@ def floor_to_nearest(val: np.ndarray, to_nearest: float) -> None:
     ],
     **nb_kwargs,
 )
-def ceil_to_nearest(val: np.ndarray, to_nearest: float) -> None:
+def ceil_to_nearest(val: np.ndarray, to_nearest: float) -> float:
     """Return smallest multiple of to_nearest that is >= val.
 
     Parameters
@@ -153,7 +153,7 @@ def ceil_to_nearest(val: np.ndarray, to_nearest: float) -> None:
     ],
     **nb_kwargs,
 )
-def trunc_to_nearest(val: np.ndarray, to_nearest: float) -> None:
+def trunc_to_nearest(val: np.ndarray, to_nearest: float) -> float:
     """Return multiple of to_nearest that is closest to val, towards zero
 
     Parameters

@@ -14,7 +14,7 @@ from dspeed.utils import numba_defaults_kwargs as nb_kwargs
     "(n),(m)",
     **nb_kwargs(forceobj=True),
 )
-def fft(w_in, dft_out):
+def fft(w_in: np.ndarray, dft_out: np.ndarray) -> None:
     """
     Perform a discrete fourier transform from a real waveform to a complex
     fourier spectrum
@@ -54,7 +54,7 @@ def fft(w_in, dft_out):
     "(n),(m)",
     **nb_kwargs(forceobj=True),
 )
-def ifft(dft_in, w_out):
+def ifft(dft_in: np.ndarray, w_out: np.ndarray) -> None:
     """
     Perform an inverse discrete fourier transform from a complex discrete
     fourier spectrum to a real waveform to a complex
@@ -78,10 +78,9 @@ def ifft(dft_in, w_out):
               - waveform((len(dft)-1)*2, period=2/dft.period/len(dft)
 
     """
-    if not (len(dft_in) - 1) * 2 == len(w_out):
-        raise DSPFatal(
-            f"Size of wf must be (len(dft_in)-1)*2 = {(len(dft_in) - 1) * 2}"
-        )
+    if (len(dft_in) - 1) * 2 != len(w_out):
+        msg = f"Size of wf must be (len(dft_in)-1)*2 = {(len(dft_in) - 1) * 2}"
+        raise DSPFatal(msg)
 
     w_out[:] = np.nan
     if np.isnan(dft_in).any():
@@ -91,7 +90,7 @@ def ifft(dft_in, w_out):
 
 
 @vectorize(["float64(complex128, uint32)", "float32(complex64, uint32)"], **nb_kwargs)
-def abs2norm(x, norm):
+def abs2norm(x: complex, norm: complex) -> complex:
     """Helper for psd"""
     return (x.real * x.real + x.imag * x.imag) / norm
 
@@ -101,7 +100,7 @@ def abs2norm(x, norm):
     "(n),(m)",
     **nb_kwargs(forceobj=True),
 )
-def psd(w_in, psd_out):
+def psd(w_in: np.ndarray, psd_out: np.ndarray) -> None:
     """
     Perform a discrete fourier transform from a real waveform and
     extract the power spectral density

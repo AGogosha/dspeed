@@ -85,7 +85,7 @@ def optimize_nnls(
         slice_1d = np.take(arr_1d, one_d_index)
         return slice_1d.reshape((len(rows), len(cols)))
 
-    def is_singular(matrix):
+    def is_singular(matrix: np.ndarray) -> bool:
         """Returns True if matrix det = 0 i.e. matrix is singular."""
         det = np.linalg.det(matrix)
         return abs(det) < np.finfo(np.float64).eps
@@ -114,7 +114,7 @@ def optimize_nnls(
 
     # Overall iteration counter
     # Outer loop is not counted, inner iter is counted across outer spins
-    iter = 0
+    i = 0
     while (not p.all()) and (w[~p] > tol).any():
         # Get the "most" active coeff index and move to inactive set
         k = np.argmax(w * (~p))
@@ -132,8 +132,8 @@ def optimize_nnls(
         s[p] = np.linalg.solve(mat, atb[p])
 
         # Inner loop
-        while (iter < maxiter) and (s[p].min() <= min_value):
-            iter += 1
+        while (i < maxiter) and (s[p].min() <= min_value):
+            i += 1
             inds = p * (s <= min_value)
             alpha = (x[inds] / (x[inds] - s[inds])).min()
             x *= 1 - alpha
@@ -151,5 +151,5 @@ def optimize_nnls(
         x[:] = s[:]
         w[:] = atb - ata @ x
 
-        if iter == maxiter:
+        if i == maxiter:
             return

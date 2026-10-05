@@ -28,7 +28,7 @@ from dspeed.utils import numba_defaults_kwargs as nb_kwargs
     "(n),()->()",
     **nb_kwargs,
 )
-def get(a_in, i, a_out):
+def get(a_in: np.ndarray, i: int, a_out: np.ndarray) -> None:
     """Get value at position ``i`` of array ``a_in``. Negative indices
     will get position ``i`` before the end. If ``i`` is out of range,
     raise ``DSPFatal``.
@@ -71,7 +71,7 @@ def get(a_in, i, a_out):
     "(n),(),()->()",
     **nb_kwargs,
 )
-def get_default(a_in, i, default, a_out):
+def get_default(a_in: np.ndarray, i: int, default: float, a_out: np.ndarray) -> None:
     """Get value at position ``i`` of array ``a_in``. Negative indices
     will get position ``i`` before the end. If ``i`` is out of range,
     or value is ``NaN``, return ``default``

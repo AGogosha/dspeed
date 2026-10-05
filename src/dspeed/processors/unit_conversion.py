@@ -17,7 +17,9 @@ from dspeed.utils import numba_defaults_kwargs as nb_kwargs
     [f"{t}({t}, f8, f8, f8)" for t in ["f4", "f8"]],
     **nb_kwargs,
 )
-def convert(buf_in, offset_in, offset_out, period_ratio):
+def convert(
+    buf_in: float, offset_in: float, offset_out: float, period_ratio: float
+) -> float:
     return (buf_in + offset_in) * period_ratio - offset_out
 
 
@@ -25,7 +27,9 @@ def convert(buf_in, offset_in, offset_out, period_ratio):
     [f"{t}({t}, f8, f8, f8)" for t in ["u1", "u2", "u4", "u8", "i1", "i2", "i4", "i8"]],
     **nb_kwargs,
 )
-def convert_int(buf_in, offset_in, offset_out, period_ratio):
+def convert_int(
+    buf_in: float, offset_in: float, offset_out: float, period_ratio: float
+) -> float:
     tmp = (buf_in + offset_in) * period_ratio - offset_out
     ret = np.rint(tmp)
     if np.abs(tmp - ret) < 1.0e-5:
@@ -41,7 +45,9 @@ def convert_int(buf_in, offset_in, offset_out, period_ratio):
     ],
     **nb_kwargs,
 )
-def convert_round(buf_in, offset_in, offset_out, period_ratio):
+def convert_round(
+    buf_in: float, offset_in: float, offset_out: float, period_ratio: float
+) -> float:
     return np.rint((buf_in + offset_in) * period_ratio - offset_out)
 
 
@@ -52,7 +58,9 @@ def convert_round(buf_in, offset_in, offset_out, period_ratio):
     ],
     **nb_kwargs,
 )
-def convert_floor(buf_in, offset_in, offset_out, period_ratio):
+def convert_floor(
+    buf_in: float, offset_in: float, offset_out: float, period_ratio: float
+) -> float:
     return np.floor((buf_in + offset_in) * period_ratio - offset_out)
 
 
@@ -63,7 +71,9 @@ def convert_floor(buf_in, offset_in, offset_out, period_ratio):
     ],
     **nb_kwargs,
 )
-def convert_ceil(buf_in, offset_in, offset_out, period_ratio):
+def convert_ceil(
+    buf_in: float, offset_in: float, offset_out: float, period_ratio: float
+) -> float:
     return np.ceil((buf_in + offset_in) * period_ratio - offset_out)
 
 
@@ -74,5 +84,7 @@ def convert_ceil(buf_in, offset_in, offset_out, period_ratio):
     ],
     **nb_kwargs,
 )
-def convert_trunc(buf_in, offset_in, offset_out, period_ratio):
+def convert_trunc(
+    buf_in: float, offset_in: float, offset_out: float, period_ratio: float
+) -> float:
     return np.trunc((buf_in + offset_in) * period_ratio - offset_out)

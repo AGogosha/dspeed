@@ -56,7 +56,7 @@ def saturation(
     if contains_nan(w_in) or np.isnan(bit_depth_in):
         return
 
-    if not np.floor(bit_depth_in) == bit_depth_in:
+    if np.floor(bit_depth_in) != bit_depth_in:
         msg = "The bit depth is not an integer"
         raise DSPFatal(msg)
 

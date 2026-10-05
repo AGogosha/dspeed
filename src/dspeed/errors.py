@@ -20,7 +20,7 @@ class DSPFatal(DSPError):
 
     """
 
-    def __init__(self, *args) -> None:
+    def __init__(self, *args: object) -> None:
         super().__init__(*args)
         self.wf_range = None
         self.processor = None

@@ -18,7 +18,7 @@ from dspeed.utils import numba_defaults_kwargs as nb_kwargs
     nopython=True,
     **nb_kwargs,
 )
-def where(condition, a, b, out):
+def where(condition: bool, a: np.ndarray, b: np.ndarray, out: np.ndarray) -> None:
     """Return elements chosen from ``a`` or ``b`` depending on ``condition``.
 
     Parameters

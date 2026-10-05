@@ -6,7 +6,7 @@ import numpy as np
 from numba import guvectorize, vectorize
 
 from dspeed.errors import DSPFatal
-from dspeed.processors import recursive_filter
+from dspeed.processors.recursive_filter import recursive_filter
 from dspeed.processors.utils import contains_nan
 from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
@@ -15,7 +15,7 @@ from dspeed.utils import numba_defaults_kwargs as nb_kwargs
     ["float64(float32)", "float64(float64)"],
     **nb_kwargs,
 )
-def rc_exp(tau):
+def rc_exp(tau: float) -> float:
     "Return RC decay exponential with zero handling"
     return np.exp(-1 / tau) if tau != 0 else 0
 
@@ -99,7 +99,7 @@ def double_pole_zero(
     t_tau2: float,
     frac: float,
     w_out: np.ndarray,
-) -> np.ndarray:
+) -> None:
     r"""Apply a double pole-zero cancellation using the provided time
     constants to the waveform.
 

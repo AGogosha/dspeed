@@ -36,21 +36,21 @@ class WaveformBrowser:
         raw_in: str | Collection[str] | LH5Iterator | Table,
         lh5_group: str | Collection[str] = "",
         base_path: str = "",
-        entry_list: Collection[int] | Collection[Collection[int]] = None,
-        entry_mask: Collection[bool] | Collection[Collection[bool]] = None,
-        dsp_config: str | Mapping = None,
-        database: str | Mapping = None,
-        aux_values: Mapping[np.ndarray] = None,
-        lines: str | Collection[str] = None,
-        styles: Mapping[str, Collection] | str = None,
-        legend: str | Collection[str] = None,
-        legend_opts: Mapping = None,
+        entry_list: Collection[int] | Collection[Collection[int]] | None = None,
+        entry_mask: Collection[bool] | Collection[Collection[bool]] | None = None,
+        dsp_config: str | Mapping | None = None,
+        database: str | Mapping | None = None,
+        aux_values: Mapping[np.ndarray] | None = None,
+        lines: str | Collection[str] | None = None,
+        styles: Mapping[str, Collection] | str | None = None,
+        legend: str | Collection[str] | None = None,
+        legend_opts: Mapping | None = None,
         n_drawn: int = 1,
-        x_unit: str | Unit = None,
-        x_lim: Collection[float | str | Quantity] = None,
-        y_lim: Collection[float | str | Quantity] = None,
-        norm: str = None,
-        align: str = None,
+        x_unit: str | Unit | None = None,
+        x_lim: Collection[float | str | Quantity] | None = None,
+        y_lim: Collection[float | str | Quantity] | None = None,
+        norm: str | None = None,
+        align: str | None = None,
         buffer_len: int = 128,
         block_width: int = 8,
     ) -> None:
@@ -318,14 +318,14 @@ class WaveformBrowser:
         """Create a new figure and draw in it."""
         self.fig, self.ax = plt.subplots(1)
 
-    def save_figure(self, f_out: str, *args, **kwargs) -> None:
+    def save_figure(self, f_out: str, *args: object, **kwargs: object) -> None:
         """Write figure to file named `f_out`. See
         :func:`matplotlib.pyplot.savefig` for `args` and `kwargs`.
         """
         self.fig.savefig(f_out)
 
     def set_figure(
-        self, fig: WaveformBrowser | plt.Figure, ax: plt.Axes = None
+        self, fig: WaveformBrowser | plt.Figure, ax: plt.Axes | None = None
     ) -> None:
         """Use an already existing figure and axis.
 
@@ -343,9 +343,11 @@ class WaveformBrowser:
             elif isinstance(ax, plt.Axes):
                 self.ax = ax
             else:
-                raise TypeError("ax must be matplotlib.Axis")
+                msg = "ax must be matplotlib.Axis"
+                raise TypeError(msg)
         else:
-            raise TypeError("fig must be matplotlib.Figure or WaveformBrowser")
+            msg = "fig must be matplotlib.Figure or WaveformBrowser"
+            raise TypeError(msg)
 
     def clear_data(self) -> None:
         """Reset the currently stored data."""
@@ -479,10 +481,11 @@ class WaveformBrowser:
                 self._update_auto_limit(None, val)
 
             else:
-                raise TypeError(
+                msg = (
                     f"Cannot draw '{name}'. WaveformBrowser does not support "
                     f"drawing lines for data of type {data.__class__}"
                 )
+                raise TypeError(msg)
 
         # legend data
         for name, vals in self.legend_vals.items():
@@ -497,10 +500,11 @@ class WaveformBrowser:
                 else:
                     data = ureg.Quantity(data.nda[i_tb])
             else:
-                raise TypeError(
+                msg = (
                     "WaveformBrowser does not adding legend entries for data "
                     f"of type {data.__class__}"
                 )
+                raise TypeError(msg)
 
             vals.append(data)
 
@@ -540,10 +544,7 @@ class WaveformBrowser:
             else:
                 styles = self.styles
 
-            if styles is None:
-                styles = default_style
-            else:
-                styles = iter(styles)
+            styles = default_style if styles is None else iter(styles)
 
             # for line, sty in zip(lines, styles):
             for line in lines:
@@ -642,7 +643,9 @@ class WaveformBrowser:
         self.find_entry(entry, append)
         self.draw_current(clear)
 
-    def find_next(self, n_wfs: int = None, append: bool = False) -> tuple[int, int]:
+    def find_next(
+        self, n_wfs: int | None = None, append: bool = False
+    ) -> tuple[int, int]:
         """Find the next `n_wfs` waveforms (default `self.n_drawn`). See
         :meth:`find_entry`.
         """
@@ -651,11 +654,12 @@ class WaveformBrowser:
         entries = (self.next_entry, self.next_entry + n_wfs)
         self.find_entry(range(*entries), append, safe=True)
         if self.n_stored == 0:
-            raise IndexError("Could not find any more waveforms...")
+            msg = "Could not find any more waveforms..."
+            raise IndexError(msg)
         return entries
 
     def draw_next(
-        self, n_wfs: int = None, append: bool = False, clear: bool = True
+        self, n_wfs: int | None = None, append: bool = False, clear: bool = True
     ) -> tuple[int, int]:
         """Draw the next `n_wfs` waveforms (default `self.n_drawn`). See
         :meth:`draw_next`.

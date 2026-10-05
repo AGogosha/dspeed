@@ -18,7 +18,9 @@ from dspeed.utils import numba_defaults_kwargs as nb_kwargs
     "(n),(),()->()",
     **nb_kwargs,
 )
-def fixed_time_pickoff(w_in: np.ndarray, t_in: float, mode_in: np.int8, a_out: float):
+def fixed_time_pickoff(
+    w_in: np.ndarray, t_in: float, mode_in: np.int8, a_out: float
+) -> None:
     """Pick off the waveform value at the provided time.
 
     For non-integral times, interpolate between samples using the method

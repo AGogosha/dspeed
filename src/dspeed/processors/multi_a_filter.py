@@ -4,7 +4,7 @@ import numpy as np
 from numba import guvectorize
 
 from dspeed.errors import DSPFatal
-from dspeed.processors import fixed_time_pickoff
+from dspeed.processors.fixed_time_pickoff import fixed_time_pickoff
 from dspeed.utils import numba_defaults_kwargs as nb_kwargs
 
 
@@ -17,7 +17,9 @@ from dspeed.utils import numba_defaults_kwargs as nb_kwargs
     **nb_kwargs,
     forceobj=True,
 )
-def multi_a_filter(w_in, vt_maxs_in, va_max_out):
+def multi_a_filter(
+    w_in: np.ndarray, vt_maxs_in: np.ndarray, va_max_out: np.ndarray
+) -> None:
     """Finds the maximums in a waveform and returns the amplitude of the wave
     at those points.
 

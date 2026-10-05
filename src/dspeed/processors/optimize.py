@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 import numpy as np
 from iminuit import Minuit
@@ -11,6 +11,9 @@ from numba import guvectorize
 from dspeed.errors import DSPFatal
 from dspeed.processors import double_pole_zero, pole_zero
 from dspeed.utils import numba_defaults_kwargs as nb_kwargs
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class Model:
@@ -34,7 +37,7 @@ class Model:
         self.end = end
 
     # the function to minimize
-    def __call__(self, args) -> np.ndarray:
+    def __call__(self, *args: object) -> np.ndarray:
         y_pz = self.func(self.y, *args)[self.beg : self.end]
         return np.abs(
             np.sum(self.x) * np.sum(y_pz) - len(self.x) * np.sum(self.x * y_pz)
@@ -111,7 +114,7 @@ def optimize_1pz(
     ):
         return
 
-    if not np.floor(t_beg_in) == t_beg_in or not np.floor(t_end_in) == t_end_in:
+    if (np.floor(t_beg_in) != t_beg_in) or (np.floor(t_end_in) != t_end_in):
         msg = "The waveform index is not an integer"
         raise DSPFatal(msg)
 
@@ -227,7 +230,7 @@ def optimize_2pz(
     ):
         return
 
-    if not np.floor(t_beg_in) == t_beg_in or not np.floor(t_end_in) == t_end_in:
+    if (np.floor(t_beg_in) != t_beg_in) or (np.floor(t_end_in) != t_end_in):
         msg = "The waveform index is not an integer"
         raise DSPFatal(msg)
 

@@ -9,7 +9,7 @@ import scipy.signal as sg
 
 from dspeed.errors import DSPFatal
 from dspeed.processing_chain import ProcChainVar
-from dspeed.processors import recursive_filter
+from dspeed.processors.recursive_filter import recursive_filter
 from dspeed.utils import GUFuncWrapper
 
 if TYPE_CHECKING:
@@ -87,10 +87,7 @@ def iir_filter(
         if not (isinstance(freq, Collection) and len(freq) == 2):
             msg = f"{btype} filter requires two freq values"
             raise DSPFatal(msg)
-        if f_samp is not None:
-            f_c = [float(2 * f / f_samp) for f in freq]
-        else:
-            f_c = freq
+        f_c = [float(2 * f / f_samp) for f in freq] if f_samp is not None else freq
         if not all(0 <= f <= 1 for f in f_c):
             msg = "Critical frequency must be positive and < nyquist frequency"
             raise DSPFatal(msg)
@@ -217,9 +214,7 @@ def peak_filter(
 
     a, b = sg.iirpeak(f_c, q)
     return GUFuncWrapper(
-        lambda w_in, w_out: recursive_filter(
-            w_in, a, b, w_in[..., 0], 0, w_out
-        ),
+        lambda w_in, w_out: recursive_filter(w_in, a, b, w_in[..., 0], 0, w_out),
         signature="(n)->(n)",
         types=["ff->f", "dd->d"],
         name=f"peak({freq}, {bandwidth})",

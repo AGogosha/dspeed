@@ -261,7 +261,7 @@ def classification_layer_no_bias(
     if np.isnan(x_in).any():
         return
 
-    temp = np.zeros(1, dtype=x_out.dtype)
+    temp = np.zeros(1, dtype=type(x_out))
     temp[0] = np.dot(x_in, kernel)
 
     if activation_func == ord("s"):

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import argparse
-import os
+from pathlib import Path
 
 from dbetto import Props
 
@@ -12,7 +12,7 @@ from dspeed.utils import clean_numba_cache, precompile_numba
 from . import __version__, build_dsp, logging
 
 
-def dspeed_cli():
+def dspeed_cli() -> None:
     """Dspeed's command line interface.
 
     Defines the command line interface (CLI) of the package, which exposes some
@@ -158,21 +158,22 @@ def dspeed_cli():
         logging.setup()
 
     if len(args.raw_lh5_file) > 1 and args.output is not None:
-        raise NotImplementedError("not possible to set multiple output file names yet")
+        msg = "not possible to set multiple output file names yet"
+        raise NotImplementedError(msg)
 
     out_files = []
     if len(args.raw_lh5_file) == 1:
         if args.output is None:
-            basename = os.path.splitext(os.path.basename(args.raw_lh5_file[0]))[0]
-            basename = basename.removesuffix("_raw")
-            out_files.append(f"{basename}_dsp.lh5")
+            path = Path(args.raw_lh5_file[0])
+            basename = path.stem.removesuffix("_raw")
+            out_files.append(str(path.parent / f"{basename}_dsp{path.suffix}"))
         else:
             out_files.append(args.output)
     else:
         for file in args.raw_lh5_file:
-            basename = os.path.splitext(os.path.basename(file))[0]
-            basename = basename.removesuffix("_raw")
-            out_files.append(f"{basename}_dsp.lh5")
+            path = Path(file)
+            basename = path.stem.removesuffix("_raw")
+            out_files.append(str(path.parent / f"{basename}_dsp{path.suffix}"))
 
     config = Props.read_from(args.config)
 
@@ -191,7 +192,7 @@ def dspeed_cli():
         )
 
 
-def dspeed_nbcache():
+def dspeed_nbcache() -> None:
     """Dspeed's command line interface for managing the numba cache."""
     parser = argparse.ArgumentParser(
         prog="dspeed-nbcache",

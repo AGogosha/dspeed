@@ -75,7 +75,7 @@ def t0_filter(rise: int, fall: int, kernel: np.ndarray) -> None:
         forceobj=True,
     ),
 )
-def moving_slope(kernel):
+def moving_slope(kernel: np.ndarray) -> None:
     """Calculates the linear slope of kernel
 
     Parameters

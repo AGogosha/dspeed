@@ -98,9 +98,8 @@ class CoordinateGrid:
 
         if isinstance(self.offset, Real):
             self.offset = self.offset * self.period
-        assert isinstance(self.period, Quantity) and isinstance(
-            self.offset, (Quantity, ProcChainVar)
-        )
+        assert isinstance(self.period, Quantity)
+        assert isinstance(self.offset, (Quantity, ProcChainVar))
 
     def __eq__(self, other: CoordinateGrid) -> bool:
         """True if values are equal; if offset is a variable, compares reference"""
@@ -189,7 +188,8 @@ class ProcChainVar(ProcChainVarBase):
             dimension of size _block_width
 
         """
-        assert isinstance(proc_chain, ProcessingChain) and isinstance(name, str)
+        assert isinstance(proc_chain, ProcessingChain)
+        assert isinstance(name, str)
         self.proc_chain = proc_chain
         self.name = name
 
@@ -213,10 +213,7 @@ class ProcChainVar(ProcChainVarBase):
             pass
 
         elif name == "shape":
-            if hasattr(value, "__iter__"):
-                value = tuple(value)
-            else:
-                value = (int(value),)
+            value = tuple(value) if hasattr(value, "__iter__") else (int(value),)
             value = tuple(value)
             assert all(isinstance(d, int) for d in value)
 
@@ -255,9 +252,9 @@ class ProcChainVar(ProcChainVarBase):
 
     def _make_buffer(self) -> np.ndarray:
         if self.is_const:
-            shape = (1,) + self.shape
+            shape = (1, *self.shape)
         else:
-            shape = (self.proc_chain._block_width,) + self.shape
+            shape = (self.proc_chain._block_width, *self.shape)
         len = np.prod(shape)
         # Flattened array, with padding to allow memory alignment
         buf = np.zeros(len + 64 // self.dtype.itemsize, dtype=self.dtype)
@@ -401,7 +398,7 @@ class ProcessingChain:
     add_scalar.
     """
 
-    def __init__(self, block_width: int = 8, buffer_len: int = None) -> None:
+    def __init__(self, block_width: int = 8, buffer_len: int | None = None) -> None:
         """Parameters
         ----------
         block_width
@@ -590,7 +587,7 @@ class ProcessingChain:
                     shape=(self._buffer_len, *var.shape), dtype=dtype
                 )
             else:
-                buff = np.ndarray((self._buffer_len,) + var.shape, dtype)
+                buff = np.ndarray((self._buffer_len, *var.shape), dtype)
 
         # If io manager exists, update it to pro
         if varname in io_managers:
@@ -633,10 +630,10 @@ class ProcessingChain:
     def add_processor(
         self,
         func: np.ufunc,
-        *args,
-        signature: str = None,
-        types: list[str] = None,
-        coord_grid: tuple | str = None,
+        *args: object,
+        signature: str | None = None,
+        types: list[str] | None = None,
+        coord_grid: tuple | str | None = None,
     ) -> None:
         """Make a list of parameters from `*args`. Replace any strings in the
         list with NumPy objects from `vars_dict`, where able.
@@ -660,7 +657,7 @@ class ProcessingChain:
         self._proc_managers.append(proc_man)
         log.debug(f"added processor: {proc_man}")
 
-    def execute(self, start: int = 0, stop: int = None) -> None:
+    def execute(self, start: int = 0, stop: int | None = None) -> None:
         """Execute the dsp chain on the entire input/output buffers."""
         if stop is None:
             stop = self._buffer_len
@@ -802,10 +799,9 @@ class ProcessingChain:
             return None
 
         if isinstance(node, ast.List):
-            npparr = np.array(
+            return np.array(
                 ast.literal_eval(expr[node.col_offset : node.end_col_offset])
             )
-            return npparr
 
         if isinstance(node, ast.Constant):
             return node.value
@@ -962,7 +958,7 @@ class ProcessingChain:
                 if isinstance(ret, Quantity):
                     ret = float(ret / val.period)
                 if isinstance(ret, Real):
-                    round_ret = int(round(ret))
+                    round_ret = round(ret)
                     if abs(ret - round_ret) > 0.0001:
                         log.warning(
                             f"slice value {slice_value} is non-integer. Rounding to {round_ret}"
@@ -1153,7 +1149,7 @@ class ProcessingChain:
             except DSPFatal as e:
                 e.processor = str(proc_man)
                 e.wf_range = (begin, end)
-                raise e
+                raise
 
         # copy from processing chain buffers into output buffers
         for out_man in self._output_managers.values():
@@ -1193,7 +1189,7 @@ class ProcessingChain:
         self,
         var: ProcChainVar | Quantity,
         to_nearest: Real | Unit | Quantity | CoordinateGrid = 1,
-        dtype: str = None,
+        dtype: str | None = None,
         mode: str = "round",
     ) -> float | Quantity | ProcChainVar:
         """Round a variable or value to nearest multiple of `to_nearest`.
@@ -1492,16 +1488,14 @@ class ProcessorManager:
         proc_chain: ProcessingChain,
         func: np.ufunc,
         params: list[str],
-        kw_params: dict = None,
-        signature: str = None,
-        types: list[str] = None,
+        kw_params: dict | None = None,
+        signature: str | None = None,
+        types: list[str] | None = None,
         grid: CoordinateGrid = None,
     ) -> None:
-        assert (
-            isinstance(proc_chain, ProcessingChain)
-            and callable(func)
-            and isinstance(params, Collection)
-        )
+        assert isinstance(proc_chain, ProcessingChain)
+        assert callable(func)
+        assert isinstance(params, Collection)
 
         if kw_params is None:
             kw_params = {}
@@ -1542,18 +1536,23 @@ class ProcessorManager:
         # of the correct dimensions and unit system
         dims_list = re.findall(r"\((.*?)\)", self.signature)
 
-        if not len(dims_list) == len(params) + len(kw_params):
-            raise ProcessingChainError(
+        if len(dims_list) != len(params) + len(kw_params):
+            msg_0 = (
                 f"expected {len(dims_list)} arguments from signature "
                 f"{self.signature}; found "
                 f"{len(params) + len(kw_params)}: ({', '.join([str(par) for par in params])})"
             )
+            raise ProcessingChainError(msg_0)
 
         dims_dict = {}  # map from dim name -> DimInfo
         outerdims = []  # list of DimInfo
 
         for ipar, (dims, param) in enumerate(
-            zip(dims_list, it.chain(self.params, self.kw_params.values()))
+            zip(
+                dims_list,
+                it.chain(self.params, self.kw_params.values()),
+                strict=False,
+            )
         ):
             if not isinstance(param, (ProcChainVar, np.ndarray)):
                 continue
@@ -1570,9 +1569,7 @@ class ProcessorManager:
             # fill out dimensions from dim signature and check if it works
             if param.shape is auto:
                 continue
-            fun_dims = [od for od in outerdims] + [
-                d.strip() for d in dims.split(",") if d
-            ]
+            fun_dims = list(outerdims) + [d.strip() for d in dims.split(",") if d]
             arr_dims = list(param.shape)
             if (
                 isinstance(param, ProcChainVar)
@@ -1681,6 +1678,7 @@ class ProcessorManager:
                 it.chain(zip(it.repeat(None), self.params), self.kw_params.items()),
                 dims_list,
                 self.types,
+                strict=False,
             )
         ):
             dim_list = outerdims.copy()
@@ -1778,7 +1776,7 @@ class ProcessorManager:
                 self.kwargs[arg_name] = param
 
         # This makes it so that execute will show up in stack traces as str(self)!
-        def execute():
+        def execute() -> None:
             start = time.time()
             self.processor(*self.args, **self.kwargs)
             self.time_total += time.time() - start
@@ -1896,7 +1894,7 @@ class UnitConversionManager(ProcessorManager):
         self.time_total = 0
 
         # This makes it so that execute will show up in stack traces as str(self)!
-        def execute():
+        def execute() -> None:
             start = time.time()
             self.processor(*self.args, **self.kwargs)
             self.time_total += time.time() - start
@@ -1943,7 +1941,8 @@ class NumpyIOManager(IOManager):
     r""":class:`IOManager` for buffers that are :class:`numpy.ndarray`\ s."""
 
     def __init__(self, io_buf: np.ndarray, var: ProcChainVar) -> None:
-        assert isinstance(io_buf, np.ndarray) and isinstance(var, ProcChainVar)
+        assert isinstance(io_buf, np.ndarray)
+        assert isinstance(var, ProcChainVar)
 
         var.update_auto(dtype=io_buf.dtype, shape=io_buf.shape[1:])
 
@@ -1990,7 +1989,8 @@ class LGDOArrayIOManager(IOManager):
     r"""IO Manager for buffers that are :class:`lgdo.Array`\ s."""
 
     def __init__(self, io_array: lgdo.Array, var: ProcChainVar) -> None:
-        assert isinstance(io_array, lgdo.Array) and isinstance(var, ProcChainVar)
+        assert isinstance(io_array, lgdo.Array)
+        assert isinstance(var, ProcChainVar)
 
         unit = io_array.attrs.get("units", None)
         var.update_auto(dtype=io_array.dtype, shape=io_array.nda.shape[1:], unit=unit)
@@ -2020,7 +2020,7 @@ class LGDOArrayIOManager(IOManager):
         self.raw_var = var.get_buffer(unit)
         self.set_buffer(io_array)
 
-    def set_buffer(self, io_array):
+    def set_buffer(self, io_array) -> None:
         if not isinstance(io_array, lgdo.Array):
             msg = f"{self.var} must be set using a lgdo.Array"
             raise ProcessingChainError(msg)
@@ -2067,9 +2067,8 @@ class LGDOArrayOfEqualSizedArraysIOManager(IOManager):
     def __init__(
         self, io_array: lgdo.ArrayOfEqualSizedArrays, var: ProcChainVar
     ) -> None:
-        assert isinstance(io_array, lgdo.ArrayOfEqualSizedArrays) and isinstance(
-            var, ProcChainVar
-        )
+        assert isinstance(io_array, lgdo.ArrayOfEqualSizedArrays)
+        assert isinstance(var, ProcChainVar)
 
         unit = io_array.attrs.get("units", None)
         var.update_auto(dtype=io_array.dtype, shape=io_array.nda.shape[1:], unit=unit)
@@ -2099,7 +2098,7 @@ class LGDOArrayOfEqualSizedArraysIOManager(IOManager):
         self.raw_var = var.get_buffer(unit)
         self.set_buffer(io_array)
 
-    def set_buffer(self, io_array: lgdo.ArrayOfEqualSizedArrays):
+    def set_buffer(self, io_array: lgdo.ArrayOfEqualSizedArrays) -> None:
         if "units" not in io_array.attrs and self.var.unit is not None:
             if isinstance(self.var.unit, Quantity):
                 io_array.attrs["units"] = str(self.var.unit.u)
@@ -2137,9 +2136,8 @@ class LGDOVectorOfVectorsIOManager(IOManager):
     r""":class:`IOManager` for buffers that are :class:`lgdo.VectorOfVectors`\ s."""
 
     def __init__(self, io_vov: lgdo.VectorOfVectors, var: ProcChainVar) -> None:
-        assert isinstance(io_vov, lgdo.VectorOfVectors) and isinstance(
-            var, ProcChainVar
-        )
+        assert isinstance(io_vov, lgdo.VectorOfVectors)
+        assert isinstance(var, ProcChainVar)
 
         if var.vector_len is None:
             var.vector_len = ProcChainVar(
@@ -2184,7 +2182,7 @@ class LGDOVectorOfVectorsIOManager(IOManager):
         self.len_var = var.vector_len.get_buffer()
         self.set_buffer(io_vov)
 
-    def set_buffer(self, io_vov: lgdo.VectorOfVectors):
+    def set_buffer(self, io_vov: lgdo.VectorOfVectors) -> None:
         if not isinstance(io_vov, lgdo.VectorOfVectors):
             msg = f"{self.var} must be set using a lgdo.VectorOfVectors"
             raise ProcessingChainError(msg)
@@ -2206,7 +2204,7 @@ class LGDOVectorOfVectorsIOManager(IOManager):
         self.io_vov = io_vov
 
     @jit
-    def _vov2nda(flat_arr_in, cl_in, start_idx_in, l_out, aoa_out):
+    def _vov2nda(self, cl_in, start_idx_in, l_out, aoa_out) -> None:
         prev_cl = start_idx_in
         for i, cl in enumerate(cl_in):
             l_out[i] = cl - prev_cl
@@ -2215,7 +2213,7 @@ class LGDOVectorOfVectorsIOManager(IOManager):
                     "VectorOfVectors entry has length larger than array variable length"
                 )
                 raise DSPFatal(msg)
-            aoa_out[i, : l_out[i]] = flat_arr_in[prev_cl:cl]
+            aoa_out[i, : l_out[i]] = self[prev_cl:cl]
             prev_cl = cl
 
     def read(self, start: int, end: int) -> None:
@@ -2273,9 +2271,8 @@ class LGDOVectorOfVectorsIOManager(IOManager):
 
 class LGDOWaveformIOManager(IOManager):
     def __init__(self, wf_table: lgdo.WaveformTable, variable: ProcChainVar) -> None:
-        assert isinstance(wf_table, lgdo.WaveformTable) and isinstance(
-            variable, ProcChainVar
-        )
+        assert isinstance(wf_table, lgdo.WaveformTable)
+        assert isinstance(variable, ProcChainVar)
 
         dt_units = wf_table.dt_units
         t0_units = wf_table.t0_units
@@ -2330,9 +2327,10 @@ class LGDOWaveformIOManager(IOManager):
         self.variable_t0 = isinstance(self.t0_var, np.ndarray)
         self.set_buffer(wf_table)
 
-    def set_buffer(self, wf_table):
+    def set_buffer(self, wf_table) -> None:
         if not isinstance(wf_table, lgdo.WaveformTable):
-            raise ValueError(f"IO buffer for {self.wf_var} is not a WaveformTable")
+            msg = f"IO buffer for {self.wf_var} is not a WaveformTable"
+            raise ValueError(msg)
 
         self.val_ioman.set_buffer(wf_table.values)
 
@@ -2380,8 +2378,8 @@ class LGDOWaveformIOManager(IOManager):
 def build_processing_chain(
     processors: dict | str,
     tb_in: lgdo.Table = None,
-    db_dict: dict = None,
-    outputs: list[str] = None,
+    db_dict: dict | None = None,
+    outputs: list[str] | None = None,
     block_width: int = 16,
 ) -> tuple[ProcessingChain, list[str], lgdo.Table]:
     """Produces a :class:`ProcessingChain` object and an LGDO
@@ -2472,11 +2470,13 @@ def build_processing_chain(
         # We don't want to modify the input!
         processors = deepcopy(processors)
     else:
-        raise ValueError("processors must be a dict, json/yaml file, or None")
+        msg = "processors must be a dict, json/yaml file, or None"
+        raise ValueError(msg)
 
     if outputs is None:
         if "outputs" not in processors:
-            raise ValueError("outputs not provided")
+            msg = "outputs not provided"
+            raise ValueError(msg)
         outputs = processors["outputs"]
 
     if "processors" in processors:
@@ -2593,10 +2593,7 @@ def build_processing_chain(
                         msg = f"""did not find {db_var} in database, and could
                                 not find default value."""
                         raise ProcessingChainError(msg)
-                if arg == db_var:
-                    arg = db_node
-                else:
-                    arg = arg.replace(db_var, str(db_node))
+                arg = db_node if arg == db_var else arg.replace(db_var, str(db_node))
             args[i] = arg
             if "args" not in node:
                 node["function"] = arg
@@ -2621,7 +2618,7 @@ def build_processing_chain(
         par: str,
         resolved: list[str],
         leafs: list[str],
-        unresolved: list[str] = None,
+        unresolved: list[str] | None = None,
     ) -> None:
         """Recursive function to crawl through the parameters/processors and get a
         sequence of unique parameters such that parameters always appear after
@@ -2802,7 +2799,7 @@ def build_processing_chain(
                     param = proc_chain.get_variable(param)
                 if isinstance(param, MutableMapping):
                     kw_params.update(param)
-                    param = list(param.values())[0]
+                    param = next(iter(param.values()))
                 elif isinstance(param, str):
                     params.append(f"'{param}'")
                 else:
@@ -2836,7 +2833,7 @@ def build_processing_chain(
                     const_val = func(*params, **kw_params)
                     if len(new_vars) == 1:
                         const_val = [const_val]
-                    for var, val in zip(new_vars, const_val):
+                    for var, val in zip(new_vars, const_val, strict=False):
                         proc_chain.set_constant(var, val)
 
             else:

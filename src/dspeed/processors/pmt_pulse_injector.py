@@ -46,8 +46,8 @@ def inject_gumbel(
     end = mu + (8 * beta)
 
     # Ensure the range is within valid waveform boundaries.
-    start = max(start, 0)
-    end = min(end, len(wf_in))
+    start = int(np.max([start, 0]))
+    end = int(np.min([end, len(wf_in)]))
 
     # Loop through the specified range and add the Gumbel distribution to wf_out.
     for i in range(start, end):

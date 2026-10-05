@@ -6,12 +6,12 @@ on waveform data.
 from __future__ import annotations
 
 import logging
-import os
 import re
 import time
 from collections.abc import Collection, Mapping
 from copy import deepcopy
 from fnmatch import fnmatch
+from pathlib import Path
 
 import lh5
 from lgdo import LGDO, Struct, Table
@@ -27,20 +27,20 @@ log = logging.getLogger("dspeed")
 def build_dsp(
     raw_in: str | LGDO,
     dsp_out: str | None = None,
-    dsp_config: str | Mapping = None,
-    lh5_tables: Collection[str] | str = None,
-    base_group: str = None,
-    database: str | Mapping = None,
-    outputs: Collection[str] = None,
-    write_mode: str = None,
-    entry_list: Collection[int] = None,
-    entry_mask: Collection[bool] = None,
+    dsp_config: str | Mapping | None = None,
+    lh5_tables: Collection[str] | str | None = None,
+    base_group: str | None = None,
+    database: str | Mapping | None = None,
+    outputs: Collection[str] | None = None,
+    write_mode: str | None = None,
+    entry_list: Collection[int] | None = None,
+    entry_mask: Collection[bool] | None = None,
     i_start: int = 0,
     n_entries: int | None = None,
     buffer_len: int = 3200,
     block_width: int = 16,
-    chan_config: str | Mapping[str, str] = None,
-) -> None:
+    chan_config: str | Mapping[str, str] | None = None,
+) -> Struct | None:
     """Convert raw-tier LH5 data into dsp-tier LH5 data by running a sequence
     of processors via the :class:`~.processing_chain.ProcessingChain`.
 
@@ -141,18 +141,14 @@ def build_dsp(
         if lh5_tables is None:
             lh5_tables = [""]
         elif len(lh5_tables) > 1:
-            raise RuntimeError(
-                "Cannot have more than one value in lh5_tables for input of type Table or LH5Iterator"
-            )
+            msg = "Cannot have more than one value in lh5_tables for input of type Table or LH5Iterator"
+            raise RuntimeError(msg)
 
     elif isinstance(raw_in, str):
         # file name
         # default base_group behavior
         if base_group is None:
-            if lh5.ls(raw_in, "raw"):
-                base_group = "raw"
-            else:
-                base_group = ""
+            base_group = "raw" if lh5.ls(raw_in, "raw") else ""
 
         # if no group is specified, assume we want to decode every table in the file
         if lh5_tables is None:
@@ -170,9 +166,8 @@ def build_dsp(
             isinstance(lh5_tables, Collection)
             and all(isinstance(el, str) for el in lh5_tables)
         ):
-            raise RuntimeError(
-                "lh5_tables must be None, a string, or a collection of strings"
-            )
+            msg = "lh5_tables must be None, a string, or a collection of strings"
+            raise RuntimeError(msg)
 
         # check if group points to raw data; sometimes 'raw' is nested, e.g g024/raw
         tbs_new = []
@@ -184,20 +179,20 @@ def build_dsp(
         lh5_tables = tbs_new
 
         if len(lh5_tables) == 0:
-            raise RuntimeError(f"could not find any valid LH5 table in {raw_in}")
+            msg = f"could not find any valid LH5 table in {raw_in}"
+            raise RuntimeError(msg)
 
     else:
-        raise RuntimeError(
-            f"raw_in was not a file name, Table, or LH5Iterator: {raw_in}"
-        )
+        msg = f"raw_in was not a file name, Table, or LH5Iterator: {raw_in}"
+        raise RuntimeError(msg)
 
     # get the config(s)
     if isinstance(dsp_config, str):
-        with open(lh5.io.utils.expand_path(dsp_config)) as config_file:
+        with Path(lh5.io.utils.expand_path(dsp_config)).open() as config_file:
             dsp_config = safe_load(config_file)
 
     if isinstance(chan_config, str):
-        with open(lh5.io.utils.expand_path(chan_config)) as config_file:
+        with Path(lh5.io.utils.expand_path(chan_config)).open() as config_file:
             # safe_load is order preserving, but doesn't load into an OrderedDict
             # and so may not be totally robust here...
             chan_config = safe_load(config_file)
@@ -206,16 +201,17 @@ def build_dsp(
 
     for chan, config in chan_config.items():
         if isinstance(config, str):
-            with open(lh5.io.utils.expand_path(config)) as config_file:
+            with Path(lh5.io.utils.expand_path(config)).open() as config_file:
                 chan_config[chan] = safe_load(config_file)
 
     # get the database parameters
     if isinstance(database, str):
-        with open(lh5.io.utils.expand_path(database)) as db_file:
+        with Path(lh5.io.utils.expand_path(database)).open() as db_file:
             database = safe_load(db_file)
 
     if database and not isinstance(database, Mapping):
-        raise ValueError("input database is not a valid JSON or YAML file or dict")
+        msg = "input database is not a valid JSON or YAML file or dict"
+        raise ValueError(msg)
 
     # Setup output
     if dsp_out is None:
@@ -223,15 +219,13 @@ def build_dsp(
         dsp_st = Struct()
     else:
         # Output to file
-        if write_mode is None and os.path.isfile(dsp_out):
-            raise FileExistsError(
-                f"output file {dsp_out} exists. Set the 'write_mode' keyword"
-            )
+        if write_mode is None and Path(dsp_out).is_file():
+            msg = f"output file {dsp_out} exists. Set the 'write_mode' keyword"
+            raise FileExistsError(msg)
 
         # clear existing output files
-        if write_mode == "r":
-            if os.path.isfile(dsp_out):
-                os.remove(dsp_out)
+        if write_mode == "r" and Path(dsp_out).is_file():
+            Path.unlink(dsp_out)
 
         dsp_st = lh5.LH5Store(keep_open=True)
 
@@ -340,16 +334,10 @@ def build_dsp(
         processors = this_config["processors"]
 
         # Get outputs from config if they weren't provided
-        if outputs is None:
-            _outputs = this_config["outputs"]
-        else:
-            _outputs = outputs
+        _outputs = this_config["outputs"] if outputs is None else outputs
 
         # resize inputs, get table and iterable versions
-        if n_entries is None:
-            tot_n_rows = len(lh5_in)
-        else:
-            tot_n_rows = min(n_entries, len(lh5_in))
+        tot_n_rows = len(lh5_in) if n_entries is None else min(n_entries, len(lh5_in))
 
         if isinstance(lh5_in, lh5.LH5Iterator):
             lh5_it = lh5_in
@@ -416,7 +404,7 @@ def build_dsp(
             except DSPFatal as e:
                 # Update the wf_range to reflect the file position
                 e.wf_range = f"{i_entry}-{i_entry + len(tb_in)}"
-                raise e
+                raise
             processing_time += time.time() - processing_time_start
 
             # Record output
@@ -458,3 +446,4 @@ def build_dsp(
 
     if isinstance(dsp_st, Struct):
         return dsp_st
+    return None

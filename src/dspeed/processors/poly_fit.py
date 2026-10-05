@@ -33,7 +33,7 @@ def _poly_fitter(w_in: np.ndarray, inv: np.ndarray, poly_pars: np.ndarray) -> No
     poly_pars[:] = inv @ arr
 
 
-def poly_fit(length, deg):
+def poly_fit(length: int, deg: int) -> GUFuncWrapper:
     """Factory function for generating a polynomial fitter for an input of length
     `length` to a polynomial of order `deg`.
 
@@ -105,7 +105,7 @@ def poly_diff(
         rms += temp * temp
 
     rms /= isum - 1
-    np.sqrt(rms, rms)
+    np.sqrt(rms, out=rms[0])
 
 
 @guvectorize(
@@ -138,4 +138,4 @@ def poly_exp_rms(
         rms += (w_in[i] - np.exp(temp)) ** 2
 
     rms /= len(w_in) - 1
-    np.sqrt(rms, rms)
+    np.sqrt(rms, out=rms[0])

@@ -194,26 +194,26 @@ def moving_window_multi(
     for i in range(0, int(num_mw), 1):
         if ((i % 2 == 1) & (mw_type == 0)) | (mw_type == 2):
             w_out[-1] = w_buf[-1]
-            for i in range(1, int(length), 1):
-                w_out[len(w_buf) - 1 - i] = (
-                    w_out[len(w_buf) - i]
-                    + (w_buf[len(w_buf) - 1 - i] - w_out[-1]) / length
+            for j in range(1, int(length), 1):
+                w_out[len(w_buf) - 1 - j] = (
+                    w_out[len(w_buf) - j]
+                    + (w_buf[len(w_buf) - 1 - j] - w_out[-1]) / length
                 )
-            for i in range(int(length), len(w_buf), 1):
-                w_out[len(w_buf) - 1 - i] = (
-                    w_out[len(w_buf) - i]
+            for j in range(int(length), len(w_buf), 1):
+                w_out[len(w_buf) - 1 - j] = (
+                    w_out[len(w_buf) - j]
                     + (
-                        w_buf[len(w_buf) - 1 - i]
-                        - w_buf[len(w_buf) - 1 - i + int(length)]
+                        w_buf[len(w_buf) - 1 - j]
+                        - w_buf[len(w_buf) - 1 - j + int(length)]
                     )
                     / length
                 )
         else:
             w_out[0] = w_buf[0]
-            for i in range(1, int(length)):
-                w_out[i] = w_out[i - 1] + (w_buf[i] - w_buf[0]) / length
-            for i in range(int(length), len(w_buf)):
-                w_out[i] = w_out[i - 1] + (w_buf[i] - w_buf[i - int(length)]) / length
+            for j in range(1, int(length)):
+                w_out[j] = w_out[j - 1] + (w_buf[j] - w_buf[0]) / length
+            for j in range(int(length), len(w_buf)):
+                w_out[j] = w_out[j - 1] + (w_buf[j] - w_buf[j - int(length)]) / length
         w_buf = w_out.copy()
 
 
