@@ -159,8 +159,8 @@ def histogram_peakstats(
 
 @guvectorize(
     [
-        "void(float32[:], float32[:], float32, float32, float32, float32)",
-        "void(float64[:], float64[:], float64, float64, float64, float64)",
+        "void(float32[:], float32[:], float32[:], float32[:], float32[:], float32)",
+        "void(float64[:], float64[:], float64[:], float64[:], float64[:], float64)",
     ],
     "(n),(m),(),(),(),()",
     **nb_kwargs,
