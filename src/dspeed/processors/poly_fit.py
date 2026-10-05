@@ -106,8 +106,7 @@ def poly_diff(
         mean += temp / (i + 1)
         rms += temp * temp
 
-    rms /= isum - 1
-    rms[0] = np.sqrt(rms)
+    rms = np.sqrt(rms / (isum - 1))
 
 
 @guvectorize(
