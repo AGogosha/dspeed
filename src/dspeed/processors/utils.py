@@ -25,4 +25,7 @@ def contains_nan(w: np.ndarray) -> bool:
         i += 16
 
     # Process final block
-    return any(np.isnan(v) for v in w[i:])
+    for v in w[i:]:  # noqa: SIM110
+        if np.isnan(v):
+            return True
+    return False

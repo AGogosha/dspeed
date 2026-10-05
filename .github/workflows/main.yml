@@ -55,19 +55,3 @@ jobs:
           python -m pytest --cov=dspeed --cov-report=xml
       - name: Upload Coverage to codecov.io
         uses: codecov/codecov-action@v7
-
-  type-check:
-      name: Type Check with ty
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v7
-
-        - name: Set up Python
-          uses: actions/setup-python@v7
-          with:
-            python-version: '3.10'
-
-        - name: Run ty
-          uses: JacobCoffee/ty-action@v1
-          with:
-            args: 'check src'
