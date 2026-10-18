@@ -30,9 +30,7 @@ def test_recursive_filter(compare_numba_vs_python):
     # ensure that if there is a nan in w_in, all nans are outputted
     w_in[4] = np.nan
     assert np.all(
-        np.isnan(
-            compare_numba_vs_python(recursive_filter, w_in, a_in, b_in, 0, 0)
-        )
+        np.isnan(compare_numba_vs_python(recursive_filter, w_in, a_in, b_in, 0, 0))
     )
 
     # ensure that if there is a nan in a_in, all nans are outputted
@@ -42,9 +40,7 @@ def test_recursive_filter(compare_numba_vs_python):
 
     assert np.all(
         np.isnan(
-            compare_numba_vs_python(
-                recursive_filter, w_in, a_wrong_in, b_in, 0, 0
-            )
+            compare_numba_vs_python(recursive_filter, w_in, a_wrong_in, b_in, 0, 0)
         )
     )
 
@@ -54,9 +50,7 @@ def test_recursive_filter(compare_numba_vs_python):
 
     assert np.all(
         np.isnan(
-            compare_numba_vs_python(
-                recursive_filter, w_in, a_in, b_wrong_in, 0, 0
-            )
+            compare_numba_vs_python(recursive_filter, w_in, a_in, b_wrong_in, 0, 0)
         )
     )
 

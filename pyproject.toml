@@ -121,7 +121,7 @@ src = ["src"]
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-    "PLR2004", # Magic value used in comparison
+    # "PLR2004", # Magic value used in comparison
     # "PT011",
     "T201",
     "W191",
@@ -138,20 +138,28 @@ ignore = [
     "Q004",
     "COM812",
     "COM819",
-    "E501",
+    # "E501",
     "ERA001",
-    "D100",
+    # "D100",
     "CPY001",
-    "D",
+    # "D",
     "PLR09",
     "C901",
-    "PLR2004",
+    # "PLR2004",
     "FBT001",
     "FBT002",
     "G004",
 ]
 [tool.ty.rules]
 invalid-assignment = "ignore"
+
+[tool.ty.environment]
+root = ["./src"]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.17.1",
+]
 # isort.required-imports = ["from __future__ import annotations"]
 # # Uncomment if using a _compat.typing backport
 # # typing-modules = ["lgdo._compat.typing"]

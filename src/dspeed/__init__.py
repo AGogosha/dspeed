@@ -9,8 +9,8 @@ from .processing_chain import ProcessingChain, build_processing_chain
 
 __all__ = [
     "ProcessingChain",
+    "__version__",
     "build_dsp",
     "build_processing_chain",
     "log",
-    "__version__",
 ]

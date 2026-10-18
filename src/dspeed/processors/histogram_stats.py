@@ -228,9 +228,8 @@ def histogram_stats(
         return
 
     if len(weights_in) + 1 != len(edges_in):
-        raise DSPFatal(
-            "length edges_in must be exactly 1 + length of weights_in"
-        )
+        msg = "length edges_in must be exactly 1 + length of weights_in"
+        raise DSPFatal(msg)
 
     # find global maximum search from left to right
     max_index = 0
@@ -262,11 +261,18 @@ def histogram_stats(
             break
 
     # look also into the other direction
-    for i in range(max_index):
-        if weights_in[i] >= half_max and weights_in[i] != 0:
-            left_width = abs(max_out[0] - edges_in[i])
+    for i in range(max_index, 0, -1):
+        if weights_in[i] < half_max and weights_in[i] != 0:
+            left_width = abs(max_out[0] - edges_in[i + 1])
             break
 
-    # Select the larger available width. If only one side was found,
-    # np.fmax returns that side; if neither was found, it returns NaN.
-    fwhm_out[0] = np.fmax(left_width, right_width)
+    # Select the larger available width without calling np.fmax on a
+    # NaN: fmax(nan, nan) raises "invalid value encountered", which
+    # becomes a hard error under warning filters. Handle the NaN
+    # cases explicitly (Numba-compatible).
+    if np.isnan(left_width):
+        fwhm_out[0] = right_width
+    elif np.isnan(right_width) or left_width > right_width:
+        fwhm_out[0] = left_width
+    else:
+        fwhm_out[0] = right_width

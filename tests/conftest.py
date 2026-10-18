@@ -18,9 +18,7 @@ from dspeed.errors import DSPFatal
 from dspeed.utils import GUFuncWrapper
 
 config_dir = Path(__file__).parent / "dsp" / "configs"
-_tmptestdir = os.path.join(
-    gettempdir(), f"dspeed-tests-{getuser()}-{str(uuid.uuid4())}"
-)
+_tmptestdir = os.path.join(gettempdir(), f"dspeed-tests-{getuser()}-{uuid.uuid4()!s}")
 
 
 @pytest.fixture(scope="session")
@@ -147,10 +145,9 @@ def compare_numba_vs_python():
             except DSPFatal as e:
                 if raise_dsp_fatal:
                     raise e
-                else:
-                    raise RuntimeError(
-                        "Python function raised DSPFatal while Numba did not!"
-                    )
+                raise RuntimeError(
+                    "Python function raised DSPFatal while Numba did not!"
+                )
             outputs_python = [copy.deepcopy(arg) for arg in inputs]
 
         elif len(inputs) == func.nin:

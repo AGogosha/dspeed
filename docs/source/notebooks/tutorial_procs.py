@@ -173,9 +173,7 @@ def triangle_filter(length: int):
     )
     kernel /= np.sum(kernel)  # normalize
 
-    @guvectorize(
-        ["(float32[:], float32[:])"], "(n)->(n)", forceobj=True, cache=False
-    )
+    @guvectorize(["(float32[:], float32[:])"], "(n)->(n)", forceobj=True, cache=False)
     def returned_filter(w_in: np.ndarray, w_out: np.ndarray):
         w_out[:] = np.nan
 
