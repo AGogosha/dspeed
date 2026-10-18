@@ -61,10 +61,6 @@ def wf_alignment(
     if contains_nan(w_in):
         return
 
-    if np.isnan(centroid):
-        msg = "centroid is nan"
-        raise DSPFatal(msg)
-
     if np.isnan(shift):
         msg = "shift is nan"
         raise DSPFatal(msg)
@@ -85,7 +81,12 @@ def wf_alignment(
         msg = "size must be shorter than input waveform size"
         raise DSPFatal(msg)
 
-    if (centroid >= size / 2) and (centroid < len(w_in) - size / 2):
+    if np.isnan(centroid):
+        # undefined centroid (e.g. no zero crossing found by
+        # get_wf_centroid on a noise event): fall back to the unaligned
+        # leading window, same as the out-of-range centroid branch below
+        w_out[:] = w_in[:size]
+    elif (centroid >= size / 2) and (centroid < len(w_in) - size / 2):
         w_out[:] = w_in[int(centroid - size / 2) : int(centroid + size / 2)]
     elif (centroid > size / 2 - shift) and (centroid < size / 2):
         ss = int((size + 1) / 2 - centroid)

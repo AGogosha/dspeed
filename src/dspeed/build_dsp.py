@@ -21,7 +21,7 @@ from yaml import safe_load
 from dspeed.errors import DSPFatal, ProcessingChainError
 from dspeed.processing_chain import build_processing_chain
 
-log = logging.getLogger("dspeed")
+log = logging.getLogger(__name__)
 
 
 def build_dsp(
@@ -237,6 +237,9 @@ def build_dsp(
             if fnmatch(tb, pat):
                 this_config = config
                 break
+
+        if not this_config:
+            continue
 
         # get the DB values
         if tb not in ("", "raw"):

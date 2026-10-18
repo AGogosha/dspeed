@@ -12,6 +12,7 @@ import logging
 import re
 import sys
 import time
+import weakref
 from abc import ABCMeta, abstractmethod
 from collections.abc import Collection, MutableMapping
 from copy import deepcopy
@@ -31,7 +32,7 @@ from dspeed.errors import DSPFatal, ProcessingChainError
 from dspeed.units import unit_registry as ureg
 from dspeed.utils import GUFuncWrapper, ProcChainVarBase
 
-log = logging.getLogger("dspeed")
+log = logging.getLogger(__name__)
 
 # Filler value for variables to be automatically deduced later
 auto = "auto"
@@ -190,7 +191,7 @@ class ProcChainVar(ProcChainVarBase):
         """
         assert isinstance(proc_chain, ProcessingChain)
         assert isinstance(name, str)
-        self.proc_chain = proc_chain
+        self._proc_chain_ref = weakref.ref(proc_chain)
         self.name = name
 
         # ndarray containing data buffer of size block_width x shape
@@ -206,6 +207,10 @@ class ProcChainVar(ProcChainVarBase):
         self.is_const = is_const
 
         log.debug(f"added variable: {self.description()}")
+
+    @property
+    def proc_chain(self):
+        return self._proc_chain_ref()
 
     # Use this to enforce type constraints and perform conversions
     def __setattr__(self, name: str, value: Any) -> None:
@@ -1446,6 +1451,7 @@ class ProcessingChain:
 
         """
         import lh5
+        from lh5.io.exceptions import LH5DecodeError
 
         try:
             loaded_data = lh5.read(path_in_file, path_to_file)
@@ -1453,9 +1459,9 @@ class ProcessingChain:
                 loaded_data = loaded_data.value
             else:
                 loaded_data = loaded_data.nda
-        except (ValueError, lh5.types.exceptions.LH5DecodeError, OSError):
-            msg = f"LH5 file not found: {path_to_file}"
-            raise ProcessingChainError(msg)
+        except (ValueError, LH5DecodeError, OSError) as e:
+            msg = f"could not load '{path_in_file}' from LH5 file: {path_to_file}"
+            raise ProcessingChainError(msg) from e
 
         return loaded_data
 
@@ -1501,7 +1507,7 @@ class ProcessorManager:
             kw_params = {}
 
         # reference back to our processing chain
-        self.proc_chain = proc_chain
+        self._proc_chain_ref = weakref.ref(proc_chain)
         # callable function used to process data
         self.processor = func
         # list of parameters prior to converting to internal representation
@@ -1792,6 +1798,10 @@ class ProcessorManager:
 
         self.execute = execute
 
+    @property
+    def proc_chain(self):
+        return self._proc_chain_ref()
+
     def __str__(self) -> str:
         return (
             self.processor.__name__
@@ -1814,7 +1824,7 @@ class UnitConversionManager(ProcessorManager):
         mode=None,
     ) -> None:
         # reference back to our processing chain
-        self.proc_chain = var.proc_chain
+        self._proc_chain_ref = weakref.ref(var.proc_chain)
         # callable function used to process data
         from .processors.unit_conversion import (
             convert,
