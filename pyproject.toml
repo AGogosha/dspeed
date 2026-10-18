@@ -120,11 +120,11 @@ src = ["src"]
 
 [tool.ruff.lint]
 select = [
-    All
+    "ALL"
 ]
 
 ignore = [
-    "PLR2004", // Magic value used in comparison
+    "PLR2004", # Magic value used in comparison
     # "PT011",
     "T201",
     "W191",
