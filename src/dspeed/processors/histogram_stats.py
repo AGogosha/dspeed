@@ -215,11 +215,12 @@ def histogram_stats(
             - ADC
             - none
             - ADC
+
     See Also
     --------
     .histogram
-    """
 
+    """
     fwhm_out[0] = np.nan
     mode_out[0] = np.nan
     max_out[0] = np.nan

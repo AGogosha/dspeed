@@ -7,12 +7,10 @@ from dspeed.processors.recursive_filter import recursive_filter
 
 
 def test_recursive_filter(compare_numba_vs_python):
-    """
-    Testing function for the recursive_filter processor.
+    """Testing function for the recursive_filter processor.
     Test that this function reproduces a single pole zero filter
 
     """
-
     # Create a single exponential pulse to pole-zero correct
     tau = 10
     ts = np.arange(0, 100)

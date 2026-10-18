@@ -9,7 +9,6 @@ from dspeed.processors import fixed_time_pickoff
 
 def test_fixed_time_pickoff(compare_numba_vs_python):
     """Testing function for the fixed_time_pickoff processor."""
-
     len_wf = 20
 
     # test for nan if w_in has a nan

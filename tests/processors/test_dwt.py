@@ -7,7 +7,6 @@ from dspeed.processors import discrete_wavelet_transform
 
 def test_discrete_wavelet_transform(compare_numba_vs_python):
     """Testing function for the discrete_wavelet_transform processor."""
-
     # set up values to use for each test case
     len_wf_in = 16
     wave_type = ord("h")

@@ -7,7 +7,6 @@ from dspeed.processors import wf_correction
 
 def test_wf_correction(compare_numba_vs_python):
     """Testing function for the wf_correction processor."""
-
     len_wf = 8
     len_corr = 4
 

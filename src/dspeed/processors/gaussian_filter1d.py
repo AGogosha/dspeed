@@ -54,8 +54,7 @@ from dspeed.utils import numba_defaults_kwargs as nb_kwargs
     ),
 )
 def gaussian_filter1d(sigma: int, truncate: float, weights: np.ndarray) -> None:
-    """
-    1-D Gaussian filter.
+    """1-D Gaussian filter.
 
     Note
     ----

@@ -112,22 +112,16 @@ def isclose(lhs, rhs, rtol=1e-5, atol=1e-8, equal_nan=True):
             return False
 
         for k in lhs:
-            if not isclose(
-                lhs[k], rhs[k], rtol=rtol, atol=atol, equal_nan=equal_nan
-            ):
+            if not isclose(lhs[k], rhs[k], rtol=rtol, atol=atol, equal_nan=equal_nan):
                 return False
         return True
 
     if isinstance(lhs, lgdo.Array) and isinstance(rhs, lgdo.Array):
         if len(lhs) != len(rhs) or lhs.attrs != rhs.attrs:
             return False
-        return np.all(
-            np.isclose(lhs, rhs, rtol=rtol, atol=atol, equal_nan=equal_nan)
-        )
+        return np.all(np.isclose(lhs, rhs, rtol=rtol, atol=atol, equal_nan=equal_nan))
 
-    if isinstance(lhs, lgdo.VectorOfVectors) and isinstance(
-        rhs, lgdo.VectorOfVectors
-    ):
+    if isinstance(lhs, lgdo.VectorOfVectors) and isinstance(rhs, lgdo.VectorOfVectors):
         if len(lhs) != len(rhs) or lhs.attrs != rhs.attrs:
             return False
         return lhs.cumulative_length == rhs.cumulative_length and np.all(

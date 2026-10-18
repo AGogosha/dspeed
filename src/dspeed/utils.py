@@ -87,8 +87,7 @@ def clean_numba_cache() -> None:
 
 
 class GUFuncWrapper:
-    """
-    A wrapper class to create a u-func like object from an arbitrary function.
+    """A wrapper class to create a u-func like object from an arbitrary function.
     This class is callable and is intended for use for processors that require
     setup with persistent state information; these processors are generated
     using the "factory" method and typically utilize "init_args"
@@ -131,8 +130,7 @@ class GUFuncWrapper:
         copy_out: bool = True,
         doc_string: str | None = None,
     ) -> None:
-        """
-        Parameters
+        """Parameters
         ----------
         fun
             python function to be wrapped
@@ -244,16 +242,14 @@ class GUFuncWrapper:
 
 
 def dspeed_guvectorize(*args: Any, **kwargs: Any) -> Callable:
-    """
-    Decorator to create a callable object implementing the gufunc interface.
+    """Decorator to create a callable object implementing the gufunc interface.
     See arguments in GUFuncWrapper initializer
     """
     return lambda fun: GUFuncWrapper(fun, *args, **kwargs)
 
 
 def getenv_bool(name: str, default: bool = False) -> bool:
-    """
-    Get environment value as a boolean, returning True for 1, t and true
+    """Get environment value as a boolean, returning True for 1, t and true
     (caps-insensitive), and False for any other value and default if undefined.
     """
     val = os.getenv(name)
@@ -263,8 +259,7 @@ def getenv_bool(name: str, default: bool = False) -> bool:
 
 
 class NumbaDefaults(MutableMapping):
-    """
-    Bare-bones class to store some Numba default options. Defaults values
+    """Bare-bones class to store some Numba default options. Defaults values
     are set from environment variables
 
     Examples
@@ -329,8 +324,7 @@ numba_defaults_kwargs = numba_defaults
 
 
 class ProcChainVarBase(metaclass=ABCMeta):
-    r"""
-    Base class.
+    r"""Base class.
 
     :class:`ProcChainVar` implements this class. This base class is used
     by processors that use ProcChainVar in their constructors.

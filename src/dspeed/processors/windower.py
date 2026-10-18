@@ -50,6 +50,7 @@ def windower(w_in: np.ndarray, t0_in: int, w_out: np.ndarray) -> None:
             - waveform
             - 5*us
             - wf_windowed(len(waveform)//4, offset=5*us, period=waveform.period)
+
     """
     w_out[:] = np.nan
 

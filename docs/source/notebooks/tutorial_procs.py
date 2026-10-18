@@ -39,6 +39,7 @@ def pole_zero(w_in: np.ndarray, t_tau: float, w_out: np.ndarray) -> None:
             - wf_bl
             - "400*us"
             - wf_pz
+
     """
     if np.isnan(t_tau) or t_tau == 0:
         msg = "t_tau must be a non-zero number"
@@ -84,6 +85,7 @@ def derivative(w_in: np.ndarray, w_out: np.ndarray):
             - wf_in
             - "wf_deriv(shape=len(wf_in)-5)"
           unit: ADC/us
+
     """
     n_samp = len(w_in) - len(w_out)
     if n_samp < 0:
@@ -128,8 +130,8 @@ def gauss_filter(w_in: np.ndarray, sigma: float, w_out: np.ndarray):
             - wf_in
             - "100*ns"
             - wf_gauss
-    """
 
+    """
     w_out[:] = np.nan
 
     if np.isnan(w_in).any():
@@ -147,6 +149,7 @@ def triangle_filter(length: int):
         the total number of samples for the triangle kernel
 
     Returns
+    -------
         gufunc for triangle filter
 
     YAML Configuration Example
@@ -162,8 +165,8 @@ def triangle_filter(length: int):
             - wf_gauss
           init_args:
             - "100*ns"
-    """
 
+    """
     # build triangular kernel
     kernel = np.concatenate(
         [

@@ -1,5 +1,4 @@
-"""
-This sphinx extension aims to improve the documentation of numba-decorated
+"""This sphinx extension aims to improve the documentation of numba-decorated
 functions. It it inspired by the design of Celery's sphinx extension
 'celery.contrib.sphinx'.
 

@@ -5,7 +5,6 @@ from dspeed.processors import min_max_norm
 
 def test_min_max_norm(compare_numba_vs_python):
     """Testing function for the max_min_norm processor."""
-
     # set up values to use for each test case
     len_wf = 10
 

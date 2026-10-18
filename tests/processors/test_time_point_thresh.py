@@ -12,7 +12,6 @@ from dspeed.processors import (
 
 def test_time_point_thresh(compare_numba_vs_python):
     """Testing function for the time_point_thresh processor."""
-
     # test for nan if w_in has a nan
     w_in = np.concatenate([np.arange(-1, 5, 1), np.arange(-1, 5, 1)], dtype="float")
     w_in[4] = np.nan
@@ -117,7 +116,6 @@ def test_time_point_thresh(compare_numba_vs_python):
 
 def test_interpolated_time_point_thresh(compare_numba_vs_python):
     """Testing function for the interpolated_time_point_thresh processor."""
-
     # test for nan if w_in has a nan
     w_in = np.concatenate([np.arange(-1, 5, 1), np.arange(-1, 5, 1)], dtype="float")
     w_in[4] = np.nan

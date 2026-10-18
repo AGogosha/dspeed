@@ -8,8 +8,7 @@ from dspeed.units import unit_registry as ureg
 
 
 def test_iir_filter(compare_numba_vs_python):
-    """
-    Testing function for all types of iir_filter processor.
+    """Testing function for all types of iir_filter processor.
     Compare against scipy.signal
     """
     f_samp = 100 * ureg.MHz
@@ -67,11 +66,9 @@ def test_iir_filter(compare_numba_vs_python):
 
 
 def test_notch_filter(compare_numba_vs_python):
-    """
-    Testing function for the notch_filter processor.
+    """Testing function for the notch_filter processor.
     Compare against scipy.signal
     """
-
     f_c = 0.5
     bw = 0.05
     bl = 10
@@ -102,11 +99,9 @@ def test_notch_filter(compare_numba_vs_python):
 
 
 def test_peak_filter(compare_numba_vs_python):
-    """
-    Testing function for the peak_filter processor.
+    """Testing function for the peak_filter processor.
     Compare against scipy.signal
     """
-
     f_c = 0.5
     bw = 0.05
     bl = 10

@@ -62,8 +62,7 @@ def spms_raw_tbl(lgnd_test_data):
 @pytest.fixture(scope="session")
 def compare_numba_vs_python():
     def numba_vs_python(func, *inputs, signature_override=None):
-        """
-        Function for testing that the numba and python versions of a
+        """Function for testing that the numba and python versions of a
         function are equal.
 
         Parameters
@@ -89,7 +88,6 @@ def compare_numba_vs_python():
             The output of the function to be used in a unit test.
 
         """
-
         # first, handle @jit and @njit; in this case no signature, nin, nout, etc.
         if isinstance(func, numba.core.registry.CPUDispatcher):
             # outputs not passed as inputs. Copy and return only outputs

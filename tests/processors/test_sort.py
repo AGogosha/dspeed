@@ -5,7 +5,6 @@ from dspeed.processors import sort
 
 def test_sort(compare_numba_vs_python):
     """Testing function for the sort processor."""
-
     # test basic sorting functionality
     w_in = np.array([5.0, 2.0, 8.0, 1.0, 9.0, 3.0])
     w_out_expected = np.array([1.0, 2.0, 3.0, 5.0, 8.0, 9.0])

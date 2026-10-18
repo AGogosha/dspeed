@@ -15,8 +15,7 @@ from dspeed.utils import numba_defaults_kwargs as nb_kwargs
     **nb_kwargs(forceobj=True),
 )
 def fft(w_in: np.ndarray, dft_out: np.ndarray) -> None:
-    """
-    Perform a discrete fourier transform from a real waveform to a complex
+    """Perform a discrete fourier transform from a real waveform to a complex
     fourier spectrum
 
     Parameters
@@ -55,8 +54,7 @@ def fft(w_in: np.ndarray, dft_out: np.ndarray) -> None:
     **nb_kwargs(forceobj=True),
 )
 def ifft(dft_in: np.ndarray, w_out: np.ndarray) -> None:
-    """
-    Perform an inverse discrete fourier transform from a complex discrete
+    """Perform an inverse discrete fourier transform from a complex discrete
     fourier spectrum to a real waveform to a complex
 
     Parameters
@@ -101,8 +99,7 @@ def abs2norm(x: complex, norm: complex) -> complex:
     **nb_kwargs(forceobj=True),
 )
 def psd(w_in: np.ndarray, psd_out: np.ndarray) -> None:
-    """
-    Perform a discrete fourier transform from a real waveform and
+    """Perform a discrete fourier transform from a real waveform and
     extract the power spectral density
 
     Parameters

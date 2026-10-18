@@ -19,7 +19,8 @@ def test_fft_convolve_wf_valid_mode():
 def test_fft_convolve_wf_does_not_mutate_input():
     """A NaN'd waveform must produce NaN output without zeroing the input in
     place: w_in is a view into the shared processing-chain buffer that
-    downstream processors also read."""
+    downstream processors also read.
+    """
     block = np.tile(np.sin(np.arange(100, dtype="float32") / 10), (4, 1))
     block[2, 50] = np.nan
     orig = block.copy()

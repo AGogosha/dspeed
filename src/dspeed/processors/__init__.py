@@ -1,5 +1,4 @@
-r"""
-Contains a list of DSP processors, implemented using Numba's
+r"""Contains a list of DSP processors, implemented using Numba's
 :func:`numba.guvectorize` to implement NumPy's :class:`numpy.ufunc` interface.
 In other words, all of the functions are void functions whose outputs are given
 as parameters.  The :class:`~numpy.ufunc` interface provides additional

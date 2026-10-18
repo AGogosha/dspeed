@@ -119,9 +119,12 @@ testpaths = "tests"
 src = ["src"]
 
 [tool.ruff.lint]
-select = ["ALL"]
+select = [
+    All
+]
+
 ignore = [
-    # "PLR2004", # Magic value used in comparison
+    "PLR2004", // Magic value used in comparison
     # "PT011",
     "T201",
     "W191",
@@ -138,14 +141,14 @@ ignore = [
     "Q004",
     "COM812",
     "COM819",
-    # "E501",
+    "E501",
     "ERA001",
-    # "D100",
+    "D100",
     "CPY001",
-    # "D",
+    "D",
     "PLR09",
     "C901",
-    # "PLR2004",
+    "PLR2004",
     "FBT001",
     "FBT002",
     "G004",

@@ -7,7 +7,6 @@ from dspeed.processors import multi_a_filter
 
 def test_multi_a_filter(compare_numba_vs_python):
     """Testing function for the multi_a_filter."""
-
     len_wf = 20
 
     # test for nan if w_in has a nan

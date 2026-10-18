@@ -15,8 +15,7 @@ log = logging.getLogger(__package__)
 
 
 def setup(level: int = logging.INFO, logger: logging.Logger | None = None) -> None:
-    """
-    Setup a colorful logging output.
+    """Setup a colorful logging output.
 
     If `logger` is None, sets up only the ``dpeed`` logger.
 

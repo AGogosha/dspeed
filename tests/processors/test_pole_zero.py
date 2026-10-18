@@ -12,10 +12,7 @@ from dspeed.processors import (
 
 
 def test_pole_zero(compare_numba_vs_python):
-    """
-    Test that the pole-zero filter can correct an RC decay pulse into a step function
-    """
-
+    """Test that the pole-zero filter can correct an RC decay pulse into a step function"""
     # Create a single exponential pulse to pole-zero correct
     tau = 30000
     ts = np.arange(0, 8192, dtype=np.float64)
@@ -49,10 +46,7 @@ def test_pole_zero(compare_numba_vs_python):
 
 
 def test_double_pole_zero(compare_numba_vs_python):
-    """
-    Test that the double pole-zero filter can correct the sum of two RC decays into a step function
-    """
-
+    """Test that the double pole-zero filter can correct the sum of two RC decays into a step function"""
     # Create a double exponential pulse to double-pole-zero correct
     wf_len = 8192
     tp0 = 20
@@ -97,9 +91,7 @@ def test_double_pole_zero(compare_numba_vs_python):
 
 
 def test_convolve_exp(compare_numba_vs_python):
-    """
-    Test that convolve_exp works with test convolutions with known results.
-    """
+    """Test that convolve_exp works with test convolutions with known results."""
 
     def test_with_delta(wf_len: int, t_offset: int, amp: float, tau: float):
         delta = np.zeros(wf_len, "float32")
@@ -146,9 +138,7 @@ def test_convolve_exp(compare_numba_vs_python):
 
 
 def test_convolve_damped_oscillator(compare_numba_vs_python):
-    """
-    Test that convolve_exp works with test convolutions with known results.
-    """
+    """Test that convolve_exp works with test convolutions with known results."""
 
     def test_with_delta(
         wf_len: int, t_offset: int, amp: float, tau: float, omega: float, phase: float
@@ -219,9 +209,7 @@ def test_convolve_damped_oscillator(compare_numba_vs_python):
 
 
 def test_inject_damped_oscillation(compare_numba_vs_python):
-    """
-    Test that convolve_exp works with test convolutions with known results.
-    """
+    """Test that convolve_exp works with test convolutions with known results."""
 
     def test(
         wf_len: int,

@@ -6,8 +6,7 @@ class DSPError(Exception):
 
 
 class DSPFatal(DSPError):
-    """
-    Fatal error thrown by DSP processors that halts production.
+    """Fatal error thrown by DSP processors that halts production.
 
     Attributes
     ----------

@@ -7,7 +7,6 @@ from dspeed.processors import inl_correction
 
 def test_inl_correction(compare_numba_vs_python):
     """Testing function for the inl_correction processor."""
-
     len_wf = 8
     len_inl = 256
 

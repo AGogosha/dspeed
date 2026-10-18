@@ -5,7 +5,6 @@ from dspeed.processors.poly_fit import poly_fit
 
 def test_poly_fit(compare_numba_vs_python):
     """Test polynomial fitter"""
-
     # cubic polynomial coefficients + values
     coeffs = np.array([5.0, 3.0, 1.0, -1.0])
     x = np.arange(10)

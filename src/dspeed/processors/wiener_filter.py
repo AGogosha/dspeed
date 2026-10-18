@@ -47,7 +47,6 @@ def wiener_filter(file_name_array: list[str]) -> np.ndarray:
             - /path/to/file/wiener.lh5
 
     """
-
     # Check that the file is valid and the data is in the correct format
     try:
         file_name_array[0]
